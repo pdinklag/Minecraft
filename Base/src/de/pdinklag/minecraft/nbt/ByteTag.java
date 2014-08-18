@@ -10,6 +10,9 @@ public class ByteTag extends NBT<Byte> {
         return x ? (byte) 1 : (byte) 0;
     }
 
+    ByteTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

@@ -6,6 +6,9 @@ import java.io.IOException;
  * Representation of the {@link NBT.Type#DOUBLE} tag.
  */
 public class DoubleTag extends NBT<Double> {
+    DoubleTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

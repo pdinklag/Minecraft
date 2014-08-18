@@ -7,6 +7,9 @@ import java.util.Arrays;
  * Representation of the {@link NBT.Type#BYTE_ARRAY} tag.
  */
 public class ByteArrayTag extends NBT<byte[]> {
+    ByteArrayTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

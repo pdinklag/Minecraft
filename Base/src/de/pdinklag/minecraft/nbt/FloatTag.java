@@ -6,6 +6,9 @@ import java.io.IOException;
  * Representation of the {@link NBT.Type#FLOAT} tag.
  */
 public class FloatTag extends NBT<Float> {
+    FloatTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

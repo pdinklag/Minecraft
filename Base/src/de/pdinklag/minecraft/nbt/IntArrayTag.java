@@ -7,6 +7,9 @@ import java.util.Arrays;
  * Representation of the {@link NBT.Type#INT_ARRAY} tag.
  */
 public class IntArrayTag extends NBT<int[]> {
+    IntArrayTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

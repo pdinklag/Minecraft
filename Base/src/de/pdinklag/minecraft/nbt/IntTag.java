@@ -6,6 +6,9 @@ import java.io.IOException;
  * Representation of the {@link NBT.Type#INT} tag.
  */
 public class IntTag extends NBT<Integer> {
+    IntTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

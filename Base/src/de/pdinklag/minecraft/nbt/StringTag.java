@@ -6,6 +6,9 @@ import java.io.IOException;
  * Representation of the {@link NBT.Type#STRING} tag.
  */
 public class StringTag extends NBT<String> {
+    StringTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *

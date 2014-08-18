@@ -6,6 +6,9 @@ import java.io.IOException;
  * Representation of the {@link NBT.Type#SHORT} tag.
  */
 public class ShortTag extends NBT<Short> {
+    ShortTag() {
+    }
+
     /**
      * Constructs a new tag with the specified parameters.
      *
