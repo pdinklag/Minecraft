@@ -65,6 +65,8 @@ class Chunk {
 
         if (section != null) {
             section.setBlock(x, y, z, block);
+
+            //TODO check heightmap, invalidate light information
             dirty = true;
         }
     }
