@@ -1,11 +1,14 @@
 package de.pdinklag.minecraft.world;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
+import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 /**
  * Represents a chunk section, consisting of 16x16x16 blocks.
  */
-class Section {
+@NBTCompoundType
+public class Section implements NBTCompoundProcessor {
     private static final int AIR = 0;
 
     static final int BLOCKS = Chunk.BLOCKS;
@@ -30,10 +33,14 @@ class Section {
 
     private transient int numNonAir = 0;
 
+    /**
+     * Constructs a new, empty section.
+     */
     public Section() {
     }
 
-    void readNbt(CompoundTag nbt) {
+    @Override
+    public void unmarshalCompound(CompoundTag nbt) {
         y = nbt.getByte("Y");
 
         final byte[] data = nbt.getByteArray("Data");
@@ -70,12 +77,17 @@ class Section {
                         block.setBlockLight(nib4(blockLight, i));
                         block.setSkyLight(nib4(skyLight, i));
                         this.blocks[x][y][z] = block;
-                    } else {
+
                         numNonAir++;
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public CompoundTag marshalCompound() {
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     boolean isEmpty() {
