@@ -49,8 +49,17 @@ public class PortPlayers {
         final Path dstStatsPath = dstWorldPath.resolve("stats");
 
         //Make sure the target directories exist
-        Files.createDirectory(dstPlayerDataPath);
-        Files.createDirectory(dstStatsPath);
+        try {
+            Files.createDirectory(dstPlayerDataPath);
+        } catch(FileAlreadyExistsException ex) {
+            //seriously?
+        }
+
+        try {
+            Files.createDirectory(dstStatsPath);
+        } catch(FileAlreadyExistsException ex) {
+            //...
+        }
 
         Files.walkFileTree(srcPlayerDataPath, new FileVisitor<Path>() {
             @Override
