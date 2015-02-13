@@ -187,7 +187,7 @@ public abstract class NBT<T> {
         this.name = Objects.requireNonNull(name);
     }
 
-    T getValue() {
+    public T getValue() {
         return value;
     }
 

@@ -2,6 +2,9 @@ package de.pdinklag.minecraft.world;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
+import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
+import de.pdinklag.minecraft.nbt.marshal.NBTMarshal;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,7 +12,8 @@ import java.util.TreeMap;
 /**
  * Represents a chunk, consisting of 16 Y sections.
  */
-class Chunk {
+@NBTCompoundType
+public class Chunk implements NBTCompoundProcessor {
     static final int BLOCKS = 16; //in blocks
     static final int BLOCKS_SQ = BLOCKS * BLOCKS;
 
@@ -36,12 +40,11 @@ class Chunk {
     /**
      * Constructs a new, empty chunk.
      */
-    Chunk() {
+    public Chunk() {
     }
 
-    void readNbt(CompoundTag nbt) {
-        nbt = nbt.getCompound("Level");
-
+    @Override
+    public void unmarshalCompound(CompoundTag nbt) {
         x = nbt.getInt("xPos");
         z = nbt.getInt("zPos");
         System.arraycopy(nbt.getByteArray("Biomes"), 0, biomes, 0, BLOCKS_SQ);
@@ -56,12 +59,16 @@ class Chunk {
         inhabitedTime = nbt.getLong("InhabitedTime");
 
         for (NBT sectionNbt : nbt.getList("Sections")) {
-            final Section section = new Section();
-            section.readNbt((CompoundTag) sectionNbt);
+            final Section section = NBTMarshal.unmarshal(Section.class, sectionNbt);
             sections.put(section.getY(), section);
         }
 
         dirty = false;
+    }
+
+    @Override
+    public CompoundTag marshalCompound() {
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     Block getBlock(int x, int y, int z) {

@@ -2,6 +2,7 @@ package de.pdinklag.minecraft.world;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
+import de.pdinklag.minecraft.nbt.marshal.NBTMarshal;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -9,6 +10,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -16,6 +19,8 @@ import java.util.zip.InflaterInputStream;
  * Represents a region, consisting of 32x32 chunks.
  */
 class Region {
+    private static final Logger LOGGER = Logger.getLogger("Region");
+
     static final int CHUNKS = 32;
     static final int BLOCKS = CHUNKS * Chunk.BLOCKS;
 
@@ -71,11 +76,10 @@ class Region {
 
         Chunk chunk = chunks[x][z];
         if (chunk == null) {
-            chunk = new Chunk();
-            chunks[x][z] = chunk;
 
             if (file != null && chunkFileOffsets[x][z] > 0) {
                 //load chunk
+                LOGGER.log(Level.INFO, "Loading relative chunk (" + x + ", " + z + ")");
                 try (final RandomAccessFile raf = new RandomAccessFile(file.toString(), "r")) {
                     raf.seek(chunkFileOffsets[x][z]);
                     final int size = raf.readInt();
@@ -101,11 +105,15 @@ class Region {
                         }
                     }
 
-                    chunk.readNbt(chunkNbt);
+                    chunk = NBTMarshal.unmarshal(Chunk.class, chunkNbt.getCompound("Level"));
                 } catch (IOException ex) {
                     throw new WorldException("Failed to load chunk", ex);
                 }
+            } else {
+                chunk = new Chunk();
             }
+
+            chunks[x][z] = chunk;
         }
 
         return chunk;
