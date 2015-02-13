@@ -11,14 +11,24 @@ import java.util.TreeMap;
  */
 class Chunk {
     static final int BLOCKS = 16; //in blocks
+    static final int BLOCKS_SQ = BLOCKS * BLOCKS;
 
     private static int yToSection(int y) {
         return y / Section.BLOCKS;
     }
 
+    private static int xz1D(int x, int z) {
+        return z * BLOCKS + x;
+    }
+
     private int x;
     private int z;
-    private final byte[] biomes = new byte[BLOCKS * BLOCKS];
+    private long lastUpdate;
+    private long inhabitedTime;
+    private final byte[] biomes = new byte[BLOCKS_SQ];
+    private final int[] heightmap = new int[BLOCKS_SQ];
+    private boolean lightPopulated;
+    private boolean terrainPopulated;
     private final Map<Integer, Section> sections = new TreeMap<>();
 
     private transient boolean dirty = false;
@@ -34,7 +44,16 @@ class Chunk {
 
         x = nbt.getInt("xPos");
         z = nbt.getInt("zPos");
-        System.arraycopy(nbt.getByteArray("Biomes"), 0, biomes, 0, BLOCKS * BLOCKS);
+        System.arraycopy(nbt.getByteArray("Biomes"), 0, biomes, 0, BLOCKS_SQ);
+        System.arraycopy(nbt.getIntArray("HeightMap"), 0, heightmap, 0, BLOCKS_SQ);
+
+        lightPopulated = nbt.getBoolean("LightPopulated");
+        if (nbt.contains("TerrainPopulated")) {
+            terrainPopulated = nbt.getBoolean("TerrainPopulated");
+        }
+
+        lastUpdate = nbt.getLong("LastUpdate");
+        inhabitedTime = nbt.getLong("InhabitedTime");
 
         for (NBT sectionNbt : nbt.getList("Sections")) {
             final Section section = new Section();
@@ -66,7 +85,8 @@ class Chunk {
         if (section != null) {
             section.setBlock(x, y, z, block);
 
-            //TODO check heightmap, invalidate light information
+            //TODO update heightmap?
+            lightPopulated = false; //invalidate lightmap?
             dirty = true;
         }
     }
@@ -77,6 +97,42 @@ class Chunk {
 
     void saved() {
         this.dirty = false;
+    }
+
+    public boolean isLightPopulated() {
+        return lightPopulated;
+    }
+
+    public void setLightPopulated(boolean lightPopulated) {
+        this.lightPopulated = lightPopulated;
+    }
+
+    public boolean isTerrainPopulated() {
+        return terrainPopulated;
+    }
+
+    public void setTerrainPopulated(boolean terrainPopulated) {
+        this.terrainPopulated = terrainPopulated;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public long getInhabitedTime() {
+        return inhabitedTime;
+    }
+
+    public void setInhabitedTime(long inhabitedTime) {
+        this.inhabitedTime = inhabitedTime;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
     public int getX() {
