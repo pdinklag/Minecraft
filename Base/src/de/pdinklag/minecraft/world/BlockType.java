@@ -201,5 +201,5 @@ public enum BlockType {
     BIRCH_DOOR,
     JUNGLE_DOOR,
     ACACIA_DOOR,
-    DARK_OAK_DOOR,
+    DARK_OAK_DOOR;
 }

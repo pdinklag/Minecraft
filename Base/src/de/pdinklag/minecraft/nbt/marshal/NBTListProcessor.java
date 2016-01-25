@@ -21,5 +21,5 @@ public interface NBTListProcessor {
      *
      * @return the NBT list.
      */
-    public ListTag marshalCompound();
+    public ListTag marshalList();
 }

@@ -15,6 +15,15 @@ public class Block {
     public Block() {
     }
 
+    public Block(BlockType type) {
+        this.type = type;
+    }
+    public Block(BlockType type, byte data) {
+        this.type = type;
+    	assert (byte) (data & 0x0f) == data;
+        this.data = data;
+    }
+
     public BlockType getType() {
         return type;
     }
@@ -28,6 +37,7 @@ public class Block {
     }
 
     public void setData(byte data) {
+    	assert (byte) (data & 0x0f) == data;
         this.data = data;
     }
 

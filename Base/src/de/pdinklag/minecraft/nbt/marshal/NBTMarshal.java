@@ -150,6 +150,14 @@ public class NBTMarshal {
             }
         }
     }
+    
+    private static NBT<?> marshalCompound(Object object) {
+        if (object instanceof NBTCompoundProcessor) {
+            return ((NBTCompoundProcessor) object).marshalCompound();
+        } else {
+        	throw new UnsupportedOperationException("cannot yet marshal compound objects that are not processors");
+        }
+    }
 
     private static void unmarshalList(Object target, ListTag nbt) {
         if (target instanceof NBTListProcessor) {
@@ -170,10 +178,23 @@ public class NBTMarshal {
             }
         }
     }
+    
+    private static NBT<?> marshalList(Object object) {
+        if (object instanceof NBTCompoundProcessor) {
+            return ((NBTListProcessor) object).marshalList();
+        } else {
+        	throw new UnsupportedOperationException("cannot yet marshal list objects that are not processors");
+        }
+    }
 
     static boolean canUnmarshal(Class<?> targetClass, NBT nbt) {
         return (targetClass.isAnnotationPresent(NBTCompoundType.class) && nbt instanceof CompoundTag)
                 || (targetClass.isAnnotationPresent(NBTListType.class) && nbt instanceof ListTag);
+    }
+
+    static boolean canMarshal(Object object) {
+        return object.getClass().isAnnotationPresent(NBTCompoundType.class)
+                || object.getClass().isAnnotationPresent(NBTListType.class);
     }
 
     /**
@@ -202,6 +223,26 @@ public class NBTMarshal {
             return target;
         } else {
             throw new NBTMarshalException("Cannot unmarshal " + nbt.getType() + " into " + targetClass);
+        }
+    }
+    
+    /**
+     * Attempts to marshal the given Object into an NBT.
+     *
+     * @param object      the object containing data to be marshalled.
+     * @return an NBT object corresponding to the marshalled Object.
+     */
+    public static NBT<?> marshal(Object object) {
+        if (canMarshal(object)) {
+        	NBT<?> nbt = null;
+	        if (object.getClass().isAnnotationPresent(NBTCompoundType.class)) {
+	        	nbt = marshalCompound(object);
+	        } else if (object.getClass().isAnnotationPresent(NBTListType.class)) {
+	        	nbt = marshalList(object);
+	        }
+	        return nbt;
+        } else {
+        	throw new NBTMarshalException("Cannot marshal object of class " + object.getClass());
         }
     }
 }
