@@ -1,5 +1,11 @@
 package de.pdinklag.minecraft.world;
 
+import de.pdinklag.minecraft.entity.BreedableMob;
+import de.pdinklag.minecraft.entity.Entity;
+import de.pdinklag.minecraft.entity.Item;
+import de.pdinklag.minecraft.entity.Pig;
+import de.pdinklag.minecraft.entity.Sheep;
+import de.pdinklag.minecraft.math.Vec3d;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.ListTag;
 import de.pdinklag.minecraft.nbt.NBT;
@@ -7,15 +13,20 @@ import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
 import de.pdinklag.minecraft.nbt.marshal.NBTMarshal;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents a chunk, consisting of 16 Y sections.
  */
 @NBTCompoundType
 public class Chunk implements NBTCompoundProcessor {
-    static final int BLOCKS = 16; //in blocks
+    private static final Logger LOGGER = Logger.getLogger("Chunk");
+    
+    public static final int BLOCKS = 16; //in blocks
     static final int BLOCKS_SQ = BLOCKS * BLOCKS;
     
     static final byte BIOME_DEFAULT = Biome.PLAINS;
@@ -37,6 +48,7 @@ public class Chunk implements NBTCompoundProcessor {
     private boolean lightPopulated;
     private boolean terrainPopulated;
     private final TreeMap<Integer, Section> sections = new TreeMap<>();
+    private final ArrayList<Entity> entities = new ArrayList<>();
 
     private transient boolean dirty = false;
 
@@ -92,7 +104,21 @@ public class Chunk implements NBTCompoundProcessor {
 	            sections.put(section.getY(), section);
 	        }
 	        
-	        //TODO : entity loading
+	        for (NBT<?> entityNbt : nbt.getList("Entities")) {
+	            Entity entity = NBTMarshal.unmarshal(Entity.class, entityNbt);
+            	try {
+	            	entity = (Entity) NBTMarshal.unmarshal(Class.forName("de.pdinklag.minecraft.entity."+entity.getId()), entityNbt);
+            	} catch (ClassNotFoundException e) {
+	            	//not implemented yet
+                	LOGGER.log(Level.INFO,"failed to load entity of type " + entity.getId() + " because it is not implemented yet");
+
+	            	//TODO: some mobs, projectiles, xpOrbs, vehicles, dynamicTiles, Other
+	            	entity = null;
+            	}
+	            if (entity != null) {
+	            	entities.add(entity);
+	            }
+	        }
 	        
 	        //TODO: read block entities
 
@@ -127,8 +153,11 @@ public class Chunk implements NBTCompoundProcessor {
         root.put("Sections", sectionListNbt);
         //TODO: save block entities
         root.put("TileEntities", new ListTag());
-        //TODO: save entities
+        //create entities as NBT
         ListTag entityListNbt = new ListTag();
+        for(Entity entity: entities) {
+        	entityListNbt.add(NBTMarshal.marshal(entity));
+        }
         root.put("Entities", entityListNbt);
 
         return root;
@@ -164,6 +193,18 @@ public class Chunk implements NBTCompoundProcessor {
             //lightPopulated = false; //invalidate lightmap?
             dirty = true;
         }
+    }
+
+    public void addEntity(double x, double y, double z, Entity entity) {
+    	entity.setPos(new Vec3d(x,y,z));
+    	entities.add(entity);
+    	
+        dirty = true;
+    }
+
+    @SuppressWarnings("unchecked")
+	public ArrayList<Entity> getEntities() {
+    	return (ArrayList<Entity>) entities.clone();
     }
 
     public boolean isDirty() {

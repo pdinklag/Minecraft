@@ -1,5 +1,6 @@
 package de.pdinklag.minecraft.world;
 
+import de.pdinklag.minecraft.entity.Entity;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
 import de.pdinklag.minecraft.nbt.NBTException;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -258,6 +260,17 @@ public class Region {
         chunk.setBlock(x, y, z, block);
         dirty = (dirty || chunk.isDirty());
     }
+    
+    void addEntity(double x, double y, double z, Entity entity) {
+        final Chunk chunk = getChunkAt((int) x, (int) z);
+        chunk.addEntity(x, y, z, entity);
+        dirty = (dirty || chunk.isDirty());
+    }
+
+	public ArrayList<Entity> listEntitiesInChunk(int x, int z) {
+        return getChunkAt(x, z).getEntities();
+    }
+
     
     byte[] generateChunkCompressedData(Chunk chunk) {
         CompoundTag chunkDataNbt = (CompoundTag) NBTMarshal.marshal(chunk);

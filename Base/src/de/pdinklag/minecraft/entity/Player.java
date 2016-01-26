@@ -1,6 +1,7 @@
 package de.pdinklag.minecraft.entity;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 import de.pdinklag.minecraft.world.BlockPos;
 
@@ -11,8 +12,9 @@ import java.util.ArrayList;
  * <p/>
  * Mapped according to http://minecraft.gamepedia.com/Player.dat_format#NBT_structure.
  */
+@NBTCompoundType
 public class Player extends Mob {
-    //TODO: Make enumeration
+	//TODO: Make enumeration
     @NBTProperty
     private int playerGameType;
 
@@ -73,6 +75,11 @@ public class Player extends Mob {
     //TODO: Map to PlayerAbility class
     @NBTProperty
     private CompoundTag abilities;
+
+    //TODO: set default values
+    public Player(String mobId) {
+		super(mobId);
+	}
 
     public int getPlayerGameType() {
         return playerGameType;

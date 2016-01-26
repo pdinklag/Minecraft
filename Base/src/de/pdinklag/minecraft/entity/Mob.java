@@ -1,20 +1,25 @@
 package de.pdinklag.minecraft.entity;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 import java.util.ArrayList;
 
 /**
  * Base class for mob entities.
- * <p/>
- * Mapped according to http://minecraft.gamepedia.com/Chunk_format#Entity_Format.
  */
+@NBTCompoundType
 public class Mob extends Entity {
-    @NBTProperty(upperCase = true)
+	//healF and health are not optional but if we deal with map files
+	// that are anterior to minecraft version 1.9, either one can be present
+	// and after 1.9 health is a float so this won't work at all
+	// this need to be improved but for the moment setting them optional will make it work for pre 1.9 versions
+	
+    @NBTProperty(optional = true, upperCase = true)
     private float healF;
 
-    @NBTProperty(upperCase = true)
+    @NBTProperty(optional = true, upperCase = true)
     private int health;
 
     @NBTProperty(upperCase = true)
@@ -62,6 +67,39 @@ public class Mob extends Entity {
     //TODO: Map Leash class
     @NBTProperty(upperCase = true, optional = true)
     private CompoundTag leash;
+    
+    /**
+     * Constructs a new blank mob (to use when loading from file)
+     */
+    public Mob(String mobId) {
+    	super(mobId);
+    	healF = 10;
+    	absorptionAmount = 0;
+    	hurtTime = 0;
+        hurtByTimestamp = 0;
+        deathTime = 0;
+        canPickUpLoot = false;
+        persistenceRequired = true;
+        leashed = false;
+    }
+
+    /**
+     * copy constructor
+     */
+    public Mob(Mob src) {
+    	super(src);
+
+    	healF = src.healF;
+    	absorptionAmount = src.absorptionAmount;
+    	hurtTime = src.hurtTime;
+        hurtByTimestamp = src.hurtByTimestamp;
+        deathTime = src.deathTime;
+        canPickUpLoot = src.canPickUpLoot;
+        persistenceRequired = src.persistenceRequired;
+        leashed = src.leashed;
+    }
+
+    
 
     public float getHealF() {
         return healF;

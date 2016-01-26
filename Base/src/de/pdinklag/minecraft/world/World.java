@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -167,7 +168,7 @@ public class World {
                 throw new WorldException("Failed to initialize region from " + regionFile.toString(), ex);
             }
             
-            if (region.isDirty()) {
+            if (readOnly && region.isDirty()) {
             	//means the region was just created, in readonly mode we consider this region does not exist
             	return null;
             }
@@ -232,6 +233,11 @@ public class World {
     	
         getRegionAt((int) x, (int) z).addEntity(x, y, z, entity);
     }
+    
+	public ArrayList<Entity> listEntitiesInChunk(int x, int z) {
+    	final Region region = getRegionAt(x, z);
+        return (region != null) ? getRegionAt(x, z).listEntitiesInChunk(x, z) : new ArrayList<Entity>();
+	}
 
 
     /**

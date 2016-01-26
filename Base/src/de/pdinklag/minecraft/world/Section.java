@@ -12,7 +12,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 public class Section implements NBTCompoundProcessor {
     private static final int AIR = 0;
 
-    static final int BLOCKS = Chunk.BLOCKS;
+    public static final int BLOCKS = Chunk.BLOCKS;
     private static final int BLOCKS_SQ = Chunk.BLOCKS * Chunk.BLOCKS;
 
     private static byte nib4(byte[] arr, int i) {
