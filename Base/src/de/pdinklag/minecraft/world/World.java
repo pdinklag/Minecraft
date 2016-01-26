@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.pdinklag.minecraft.entity.Entity;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
 import de.pdinklag.minecraft.nbt.marshal.NBTMarshal;
@@ -40,6 +41,7 @@ public class World {
     }
 
     private final Path baseDir;
+    private boolean readOnly;
     private final Map<Long, Region> regions = new TreeMap<>();
     private de.pdinklag.minecraft.world.Level level;
 
@@ -47,15 +49,20 @@ public class World {
      * Load or construct a new, empty world.
      *
      * @param baseDir the world's base directory on the file system.
+     * @param readOnly if the world should be opened in read only.
      * @throws IOException 
      */
-    public World(Path baseDir) throws IOException {
+    public World(Path baseDir, boolean readOnly) throws IOException {
         this.baseDir = Objects.requireNonNull(baseDir);
+        this.readOnly = readOnly;
         
         if ( !loadLevelFile(baseDir.resolve("level.dat")) ) {
         	//create default level
         	level = new de.pdinklag.minecraft.world.Level();
         }
+    }
+    public World(Path baseDir) throws IOException {
+    	this(baseDir, false);
     }
     
     private void saveLevelFile(Path levelFilePath) throws IOException {
@@ -89,7 +96,11 @@ public class World {
     /**
      * Saves dirty regions back to the file system. and saves level file if needed
      */
-    public void save() throws IOException {
+    public void save() throws Exception {
+    	if (readOnly) {
+    		throw new WorldException("you are in readonly mode and cannot save the map");
+    	}
+    	
         for (Region region : regions.values()) {
             if (region.isDirty()) {
                 region.save();
@@ -155,6 +166,11 @@ public class World {
             } catch (IOException ex) {
                 throw new WorldException("Failed to initialize region from " + regionFile.toString(), ex);
             }
+            
+            if (region.isDirty()) {
+            	//means the region was just created, in readonly mode we consider this region does not exist
+            	return null;
+            }
 
             regions.put(regionKey, region);
         }
@@ -171,7 +187,8 @@ public class World {
      * @return the block at the specified positon, guaranteed to be non-null.
      */
     public Block getBlock(int x, int y, int z) {
-        final Block block = getRegionAt(x, z).getBlock(x, y, z);
+    	final Region region = getRegionAt(x, z);
+        final Block block = (region != null) ? region.getBlock(x, y, z) : null;
         return (block != null) ? block : Block.AIR_BLOCK;
     }
 
@@ -184,7 +201,8 @@ public class World {
      * @return true if a block is defined.
      */
     public boolean hasBlock(int x, int y, int z) {
-        return getRegionAt(x, z).getBlock(x, y, z) != null;
+    	final Region region = getRegionAt(x, z);
+        return (region != null) ? (getRegionAt(x, z).getBlock(x, y, z) != null) : false;
     }
 
     /**
@@ -196,6 +214,10 @@ public class World {
      * @param block the new block for the specified position. May be {@code null} to indicate air.
      */
     public void setBlock(int x, int y, int z, Block block) {
+    	if (readOnly) {
+    		throw new WorldException("you are in readonly mode and cannot set blocks");
+    	}
+    	
         if (block != null && block.getType() == BlockType.AIR) {
             block = null; //don't actually save air blocks...
         }
@@ -203,6 +225,15 @@ public class World {
         getRegionAt(x, z).setBlock(x, y, z, block);
     }
     
+    public void addEntity(double x, double y, double z, Entity entity) {
+    	if (readOnly) {
+    		throw new WorldException("you are in readonly mode and cannot set blocks");
+    	}
+    	
+        getRegionAt((int) x, (int) z).addEntity(x, y, z, entity);
+    }
+
+
     /**
      * Unload regions from memory
      */
