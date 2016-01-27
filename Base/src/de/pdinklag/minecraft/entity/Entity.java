@@ -72,6 +72,9 @@ public class Entity {
      */
     public Entity() {
         id = "";
+        pos = new Vec3d();
+        motion = new Vec3d();
+        rotation = new Rot2f();
         fallDistance = 0;
         fire = -1;
         air = 300;
@@ -94,6 +97,9 @@ public class Entity {
      */
     public Entity(Entity src) {
         id = src.id;
+        pos = src.pos;
+        motion = src.motion;
+        rotation = src.rotation;
         fallDistance = src.fallDistance;
         fire = src.fire;
         air = src.air;

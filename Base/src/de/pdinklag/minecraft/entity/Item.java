@@ -33,9 +33,8 @@ public class Item extends Entity {
     @NBTProperty(upperCase = true, optional = true)
     private String thrower;
 
-    @NBTProperty(upperCase = true, listItemType = CompoundTag.class)
-    private ArrayList<CompoundTag> item;
-
+    @NBTProperty(upperCase = true)
+    private HashMap<String,NBT> item;//actually never used to store data, just to indicate the NBT compound
     private String item_id;
     private byte item_count;
     private short item_damage;

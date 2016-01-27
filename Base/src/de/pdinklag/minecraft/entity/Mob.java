@@ -78,9 +78,11 @@ public class Mob extends Entity {
     	hurtTime = 0;
         hurtByTimestamp = 0;
         deathTime = 0;
+        attributes = new ArrayList<CompoundTag>();
         canPickUpLoot = false;
         persistenceRequired = true;
         leashed = false;
+        attributes = new ArrayList<CompoundTag>();
     }
 
     /**
@@ -94,6 +96,7 @@ public class Mob extends Entity {
     	hurtTime = src.hurtTime;
         hurtByTimestamp = src.hurtByTimestamp;
         deathTime = src.deathTime;
+        attributes = src.attributes;
         canPickUpLoot = src.canPickUpLoot;
         persistenceRequired = src.persistenceRequired;
         leashed = src.leashed;
