@@ -41,7 +41,7 @@ public class Section implements NBTCompoundProcessor {
         return b;
     }
 
-    private int y;
+    private byte y;
     private final Block[][][] blocks = new Block[BLOCKS][BLOCKS][BLOCKS];
 
     private transient int numNonAir = 0;
@@ -186,11 +186,11 @@ public class Section implements NBTCompoundProcessor {
         }
     }
 
-    public int getY() {
+    public byte getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(byte y) {
         this.y = y;
     }
 }

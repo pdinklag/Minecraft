@@ -31,8 +31,8 @@ public class Chunk implements NBTCompoundProcessor {
     
     static final byte BIOME_DEFAULT = Biome.PLAINS;
     
-    private static int yToSection(int y) {
-        return y / Section.BLOCKS;
+    private static byte yToSection(int y) {
+        return (byte)(y / Section.BLOCKS);
     }
 
     private static int xz1D(int x, int z) {
@@ -47,7 +47,7 @@ public class Chunk implements NBTCompoundProcessor {
     private final int[] heightmap = new int[BLOCKS_SQ];
     private boolean lightPopulated;
     private boolean terrainPopulated;
-    private final TreeMap<Integer, Section> sections = new TreeMap<>();
+    private final TreeMap<Byte, Section> sections = new TreeMap<>();
     private final ArrayList<Entity> entities = new ArrayList<>();
 
     private transient boolean dirty = false;
@@ -173,7 +173,7 @@ public class Chunk implements NBTCompoundProcessor {
     }
 
     public void setBlock(int x, int y, int z, Block block) {
-        final int secY = yToSection(y);
+        final byte secY = yToSection(y);
 
         Section section = sections.get(secY);
         if (section == null) {
