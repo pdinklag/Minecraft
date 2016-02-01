@@ -1,14 +1,11 @@
 package de.pdinklag.minecraft.world;
 
-import de.pdinklag.minecraft.entity.BreedableMob;
 import de.pdinklag.minecraft.entity.Entity;
-import de.pdinklag.minecraft.entity.Item;
-import de.pdinklag.minecraft.entity.Pig;
-import de.pdinklag.minecraft.entity.Sheep;
 import de.pdinklag.minecraft.math.Vec3d;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.ListTag;
 import de.pdinklag.minecraft.nbt.NBT;
+import de.pdinklag.minecraft.nbt.NBT.Type;
 import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
 import de.pdinklag.minecraft.nbt.marshal.NBTMarshal;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
@@ -134,15 +131,16 @@ public class Chunk implements NBTCompoundProcessor {
         CompoundTag root = new CompoundTag();
         root.put("xPos", x);
         root.put("zPos", z);
-       	root.put("Biomes", biomes);
-        root.put("HeightMap", heightmap);
-        root.put("LightPopulated", lightPopulated);
-        root.put("TerrainPopulated", terrainPopulated);
         //we consider the marshalling as the trigger for updating the lastUpdate field
     	Date date= new Date();
         lastUpdate = date.getTime();
         root.put("LastUpdate", lastUpdate);
+        root.put("LightPopulated", lightPopulated);
+        root.put("TerrainPopulated", terrainPopulated);
+        root.put("V", (byte)1);
         root.put("InhabitedTime", inhabitedTime);
+       	root.put("Biomes", biomes);
+        root.put("HeightMap", heightmap);
         //create sections as NBT
         ListTag sectionListNbt = new ListTag();
         for(Section section: sections.values()) {
@@ -151,14 +149,23 @@ public class Chunk implements NBTCompoundProcessor {
         	}
         }
         root.put("Sections", sectionListNbt);
-        //TODO: save block entities
-        root.put("TileEntities", new ListTag());
-        //create entities as NBT
-        ListTag entityListNbt = new ListTag();
-        for(Entity entity: entities) {
-        	entityListNbt.add(NBTMarshal.marshal(entity));
+        
+        ListTag nbtList;
+        
+        nbtList = new ListTag();
+        if (entities.size() == 0) {
+        	nbtList.setType(Type.BYTE);//because list is empty
+        } else {
+	        for(Entity entity: entities) {
+	        	nbtList.add(NBTMarshal.marshal(entity));
+	        }
         }
-        root.put("Entities", entityListNbt);
+        root.put("Entities", nbtList);
+        
+        //TODO: save block entities
+        nbtList = new ListTag();
+        nbtList.setType(Type.BYTE);//because list is empty
+        root.put("TileEntities", nbtList);
 
         return root;
     }

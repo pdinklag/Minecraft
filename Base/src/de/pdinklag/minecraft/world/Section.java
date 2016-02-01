@@ -17,7 +17,8 @@ public class Section implements NBTCompoundProcessor {
 
     private static byte nib4(byte[] arr, int i) {
         final int x = arr[i / 2] & 0xff;
-        return (i % 2 == 0) ? (byte) (x >>> 4) : (byte) (x & 0x0F);
+		//careful that lower index data (even one) will be on the right half-byte
+        return (i % 2 != 0) ? (byte) (x >>> 4) : (byte) (x & 0x0F);
     }
     private static byte[] byteArrayToHalfByteArray(byte[] byteArr) {
     	byte [] halfByteArr = new byte[byteArr.length/2];
@@ -86,12 +87,18 @@ public class Section implements NBTCompoundProcessor {
 
                     int id = blocks[i];
                     if (id < 0) {
-                        id += 128;
+                        id += 256;
                     }
 
                     int addValue;
                     if ( (add != null) && ((addValue = nib4(add, i)) > 0 ) ) {
                         id += addValue << 8;
+                    }
+                    
+                    if(i == 3245)
+                    {
+                    	x = x + 1;
+                    	x = x - 1;
                     }
 
                     if (id != AIR) {
@@ -114,7 +121,6 @@ public class Section implements NBTCompoundProcessor {
     	assert !isEmpty();
     	
         CompoundTag root = new CompoundTag();
-        root.put("Y", y);
 
         // transform Block data into section structure data as it is in a region file
         final byte[] data = new byte[BLOCKS*BLOCKS*BLOCKS];
@@ -144,15 +150,19 @@ public class Section implements NBTCompoundProcessor {
                         }
                     	byteBlocks[i] = (byte) (blockId & 0xff);
                     }
+                    else {
+                    	skyLight[i] = Block.MAX_LIGHT;
+                    }
 
                 }
             }
         }
         
-        root.put("Data", byteArrayToHalfByteArray(data));
-        root.put("SkyLight", byteArrayToHalfByteArray(skyLight));
-        root.put("BlockLight", byteArrayToHalfByteArray(blockLight));
         root.put("Blocks", byteBlocks);
+        root.put("SkyLight", byteArrayToHalfByteArray(skyLight));
+        root.put("Y", y);
+        root.put("BlockLight", byteArrayToHalfByteArray(blockLight));
+        root.put("Data", byteArrayToHalfByteArray(data));
         if(needAddData) {
             root.put("Add", byteArrayToHalfByteArray(add));
         }

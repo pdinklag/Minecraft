@@ -5,12 +5,13 @@ package de.pdinklag.minecraft.world;
  */
 public class Block {
     static final Block AIR_BLOCK = new Block();
+    static final byte MAX_LIGHT = 0x0f;
 
     private BlockType type = BlockType.AIR;
     private byte data = 0;
 
     private byte blockLight = 0;
-    private byte skyLight = 0;
+    private byte skyLight = MAX_LIGHT;
 
     public Block() {
     }

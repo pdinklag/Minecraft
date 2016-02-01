@@ -106,6 +106,7 @@ public abstract class NBT<T> {
 
     /**
      * Loads a tag tree from the specified input stream directly, without piping it through GZIP.
+     * this enable the compression format to be set prior to the call
      *
      * @param in the stream to read from.
      * @return the read compound of tags.
@@ -126,7 +127,7 @@ public abstract class NBT<T> {
     }
 
     /**
-     * Loads a tag tree from the specified input stream.
+     * Loads an NBT file from the specified input stream.
      *
      * @param in the stream to read from.
      * @return the read compound of tags.

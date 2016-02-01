@@ -17,8 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -26,8 +24,6 @@ import java.util.zip.InflaterInputStream;
  * Represents a region, consisting of 32x32 chunks.
  */
 public class Region {
-    private static final Logger LOGGER = Logger.getLogger("Region");
-
     static final int CHUNKS = 32;
     public static final int BLOCKS = CHUNKS * Chunk.BLOCKS;
 
@@ -211,7 +207,7 @@ public class Region {
                     final int size = raf.readInt();
                     final int compression = raf.readByte();
 
-                    compressedChunksCache[x][z] = new byte[size - 1];
+                    compressedChunksCache[x][z] = new byte[size];
                     raf.read(compressedChunksCache[x][z]);
 
                     final CompoundTag chunkNbt;
@@ -283,6 +279,8 @@ public class Region {
 		} catch (IOException e) {
 			throw new NBTException("couldn't create chunk data in memory", e);
 		}
+        //add a null ending
+        compressedBytesStream.write(0);
         return compressedBytesStream.toByteArray();
     }
 }

@@ -181,7 +181,7 @@ public class ListTag extends NBT<List<NBT>> implements Iterable<NBT> {
 
     @Override
     void writeValue(NBTDataOutput output) throws IOException {
-        if (itemType == null || getValue().size() == 0) {
+        if (itemType == null) {
             output.writeTagId(Type.END);
             output.writeInt(0);
         } else {
@@ -198,6 +198,14 @@ public class ListTag extends NBT<List<NBT>> implements Iterable<NBT> {
             itemType = x.getType();
         } else if (x.getType() != itemType) {
             throw new NBTException("All items of this list need to be of type " + itemType + ".");
+        }
+    }
+
+    public void setType(Type type) {
+        if (itemType == null) {
+            itemType = type;
+        } else {
+            throw new NBTException("Cannot set type on a list that already has a type or some elements");
         }
     }
 
