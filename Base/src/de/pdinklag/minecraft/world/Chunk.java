@@ -62,7 +62,7 @@ public class Chunk implements NBTCompoundProcessor {
     	this.x = x;
     	this.z = z;
     	terrainPopulated = true;
-    	lightPopulated = false;
+    	lightPopulated = true;
     	//set default biome
     	for (int i = 0; i < BLOCKS_SQ; i++) {
     		biomes[i] = BIOME_DEFAULT;
