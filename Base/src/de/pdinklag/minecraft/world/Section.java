@@ -15,20 +15,25 @@ public class Section implements NBTCompoundProcessor {
     public static final int BLOCKS = Chunk.BLOCKS;
     private static final int BLOCKS_SQ = Chunk.BLOCKS * Chunk.BLOCKS;
 
+    private static int xzy1D(int x, int z, int y) {
+        return y * BLOCKS_SQ + z * BLOCKS + x;
+    }
     private static byte nib4(byte[] arr, int i) {
         final int x = arr[i / 2] & 0xff;
 		//careful that lower index data (even one) will be on the right half-byte
         return (i % 2 != 0) ? (byte) (x >>> 4) : (byte) (x & 0x0F);
     }
+    private static void ntob4(byte[] arr, int i, byte value) {
+		int halfi = i / 2;
+		assert (value & 0x0F) == value;
+		//careful that lower index data (even one) will be on the right half-byte
+		arr[halfi] |= (i % 2 != 0) ? value << 4 : value ;
+    }
     private static byte[] byteArrayToHalfByteArray(byte[] byteArr) {
     	byte [] halfByteArr = new byte[byteArr.length/2];
-    	int halfi;
     	for(int i = 0; i < byteArr.length; i++)
     	{
-    		halfi = i / 2;
-    		assert (byteArr[i] & 0x0F) == byteArr[i];
-    		//careful that lower index data (even one) will be on the right half-byte
-    		halfByteArr[halfi] |= (i % 2 != 0) ? byteArr[i] << 4 : byteArr[i] ;
+    		ntob4(halfByteArr,i,byteArr[i]);
     	}
     	return halfByteArr;
     }
@@ -44,6 +49,8 @@ public class Section implements NBTCompoundProcessor {
 
     private byte y;
     private final Block[][][] blocks = new Block[BLOCKS][BLOCKS][BLOCKS];
+    private final byte[] skyLight = new byte[BLOCKS*BLOCKS*BLOCKS / 2];
+    private final byte[] blockLight = new byte[BLOCKS*BLOCKS*BLOCKS / 2];
 
     private transient int numNonAir = 0;
 
@@ -68,6 +75,9 @@ public class Section implements NBTCompoundProcessor {
         		|| (blocks.length != BLOCKS * BLOCKS * BLOCKS) ) {
         	throw new NBTException("Section has an incorrect byte length");
         }
+        
+        System.arraycopy(skyLight, 0, this.skyLight, 0, BLOCKS * BLOCKS * BLOCKS / 2);
+        System.arraycopy(blockLight, 0, this.blockLight, 0, BLOCKS * BLOCKS * BLOCKS / 2);
 
         final byte[] add;
         if (nbt.contains("Add")) {
@@ -83,7 +93,7 @@ public class Section implements NBTCompoundProcessor {
         for (int y = 0; y < BLOCKS; y++) {
             for (int z = 0; z < BLOCKS; z++) {
                 for (int x = 0; x < BLOCKS; x++) {
-                    final int i = y * BLOCKS_SQ + z * BLOCKS + x;
+                    final int i = xzy1D(x,z,y);
 
                     int id = blocks[i];
                     if (id < 0) {
@@ -105,8 +115,6 @@ public class Section implements NBTCompoundProcessor {
                         final Block block = new Block();
                         block.setType(BlockType.values()[id]);
                         block.setData(nib4(data, i));
-                        block.setBlockLight(nib4(blockLight, i));
-                        block.setSkyLight(nib4(skyLight, i));
                         this.blocks[x][y][z] = block;
 
                         numNonAir++;
@@ -124,8 +132,6 @@ public class Section implements NBTCompoundProcessor {
 
         // transform Block data into section structure data as it is in a region file
         final byte[] data = new byte[BLOCKS*BLOCKS*BLOCKS];
-        final byte[] skyLight = new byte[BLOCKS*BLOCKS*BLOCKS];
-        final byte[] blockLight = new byte[BLOCKS*BLOCKS*BLOCKS];
         final byte[] byteBlocks = new byte[BLOCKS*BLOCKS*BLOCKS];
         final byte[] add = new byte[BLOCKS*BLOCKS*BLOCKS];
         boolean needAddData = false;
@@ -140,8 +146,6 @@ public class Section implements NBTCompoundProcessor {
                     if(block != null)
                     {
                     	data[i] = (byte) (block.getData() & 0x0F);
-                    	skyLight[i] = block.getSkyLight();
-                    	blockLight[i] = block.getBlockLight();
 
                     	int blockId = block.getType().ordinal();
                     	if((blockId >> 8) > 0) {
@@ -150,18 +154,14 @@ public class Section implements NBTCompoundProcessor {
                         }
                     	byteBlocks[i] = (byte) (blockId & 0xff);
                     }
-                    else {
-                    	skyLight[i] = Block.MAX_LIGHT;
-                    }
-
                 }
             }
         }
         
         root.put("Blocks", byteBlocks);
-        root.put("SkyLight", byteArrayToHalfByteArray(skyLight));
+        root.put("SkyLight", skyLight);
         root.put("Y", y);
-        root.put("BlockLight", byteArrayToHalfByteArray(blockLight));
+        root.put("BlockLight", blockLight);
         root.put("Data", byteArrayToHalfByteArray(data));
         if(needAddData) {
             root.put("Add", byteArrayToHalfByteArray(add));
@@ -194,6 +194,38 @@ public class Section implements NBTCompoundProcessor {
         } else if (!wasAir && (block == null)) {
             numNonAir--;
         }
+    }
+
+    byte getBlockLight(int x, int y, int z) {
+        x = blockInSection(x);
+        y = blockInSection(y);
+        z = blockInSection(z);
+        return nib4(blockLight, xzy1D(x,z,y));
+    }
+
+    void setBlockLight(int x, int y, int z, byte value) {
+    	assert (value <= 0x0f);
+
+    	x = blockInSection(x);
+        y = blockInSection(y);
+        z = blockInSection(z);
+        ntob4(blockLight, xzy1D(x,z,y), value);
+    }
+
+    byte getSkyLight(int x, int y, int z) {
+        x = blockInSection(x);
+        y = blockInSection(y);
+        z = blockInSection(z);
+        return nib4(skyLight, xzy1D(x,z,y));
+    }
+
+    void setSkyLight(int x, int y, int z, byte value) {
+    	assert (value <= 0x0f);
+
+    	x = blockInSection(x);
+        y = blockInSection(y);
+        z = blockInSection(z);
+        ntob4(skyLight, xzy1D(x,z,y), value);
     }
 
     public byte getY() {

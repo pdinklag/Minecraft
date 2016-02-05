@@ -4,14 +4,13 @@ package de.pdinklag.minecraft.world;
  * Represents a single block.
  */
 public class Block {
-    static final Block AIR_BLOCK = new Block();
-    static final byte MAX_LIGHT = 0x0f;
+	public static final Block AIR_BLOCK = new Block();
 
     private BlockType type = BlockType.AIR;
     private byte data = 0;
 
     private byte blockLight = 0;
-    private byte skyLight = MAX_LIGHT;
+    private byte skyLight = 0;
 
     public Block() {
     }
@@ -23,6 +22,13 @@ public class Block {
         this.type = type;
     	assert (byte) (data & 0x0f) == data;
         this.data = data;
+    }
+
+    public Block(Block copyFrom) {
+    	type = copyFrom.type;
+    	data = copyFrom.data;
+    	blockLight = copyFrom.blockLight;
+    	skyLight = copyFrom.skyLight;
     }
 
     public BlockType getType() {

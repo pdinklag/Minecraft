@@ -27,6 +27,7 @@ public class Chunk implements NBTCompoundProcessor {
     static final int BLOCKS_SQ = BLOCKS * BLOCKS;
     
     static final byte BIOME_DEFAULT = Biome.PLAINS;
+    static final byte MAX_LIGHT = 0x0f;
     
     private static byte yToSection(int y) {
         return (byte)(y / Section.BLOCKS);
@@ -62,7 +63,7 @@ public class Chunk implements NBTCompoundProcessor {
     	this.x = x;
     	this.z = z;
     	terrainPopulated = true;
-    	lightPopulated = true;
+    	lightPopulated = false;
     	//set default biome
     	for (int i = 0; i < BLOCKS_SQ; i++) {
     		biomes[i] = BIOME_DEFAULT;
@@ -128,6 +129,9 @@ public class Chunk implements NBTCompoundProcessor {
 
     @Override
     public CompoundTag marshalCompound() {
+    	//compute the lighting if needed before marshalling the data
+    	computeLighting();    	
+    	
         CompoundTag root = new CompoundTag();
         root.put("xPos", x);
         root.put("zPos", z);
@@ -197,7 +201,7 @@ public class Chunk implements NBTCompoundProcessor {
             z = Section.blockInSection(z);
             heightmap[xz1D(x,z)] = Math.max(heightmap[xz1D(x,z)], y);
             
-            //lightPopulated = false; //invalidate lightmap?
+            lightPopulated = false; //invalidate lightmap
             dirty = true;
         }
     }
@@ -207,6 +211,39 @@ public class Chunk implements NBTCompoundProcessor {
     	entities.add(entity);
     	
         dirty = true;
+    }
+    
+    public void computeLighting () {
+    	//only compute if it is out of date
+    	if(lightPopulated) {
+    		return;
+    	}
+    	
+    	//simplistic method : set skylight to full between top and surface block
+    	for (int xInChunk = 0; xInChunk < BLOCKS; xInChunk++) {
+    		for (int zInChunk = 0; zInChunk < BLOCKS; zInChunk++) {
+    			int curHeight = heightmap[xz1D(xInChunk,zInChunk)];
+    			for (int y = 255 ; y >= 0; y--) {
+    				byte sectionY = yToSection(y);
+    				Section section = sections.get(sectionY);
+    				if (section == null) {
+    					//go straight to next section
+    					y -= Section.BLOCKS - 1;
+    				} else {
+    					if (y >= curHeight) {
+    						section.setSkyLight(xInChunk, y, zInChunk, MAX_LIGHT);
+    					}
+    					else {
+    						//TODO: check if there is a transparent block
+    						//no need to go to lower blocks
+    						break;
+    					}
+    				}
+    			}
+        	}	
+    	}
+    	
+    	lightPopulated = true;
     }
 
     @SuppressWarnings("unchecked")
