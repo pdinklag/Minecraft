@@ -140,8 +140,10 @@ public class Region {
 	                		inputFile.seek(chunkFileOffsets[x][z]);
 	                		chunkSize = inputFile.readInt();
 	                        compression = inputFile.readByte();
-	                        chunkData = new byte[chunkSize - 1];
-	                        inputFile.read(chunkData);
+	                		if (chunkSize > 0) {
+		                        chunkData = new byte[chunkSize - 1];
+		                        inputFile.read(chunkData);
+	                		}
                 		} else {
                 			//indicate empty chunk data, chunk won't be saved
                 			chunkSize = 0;
