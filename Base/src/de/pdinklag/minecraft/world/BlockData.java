@@ -35,6 +35,7 @@ public final class BlockData {
 		public final static byte JUNGLE = 0x03;
 		public final static byte ACACIA = 0x04;
 		public final static byte DARKOAK = 0x05;
+		public final static byte TREETYPE_FILTER = 0x05;
 		public final static byte READY_TO_GROW = 0x08;
 	}
 	public final class FLOWING { //for FLOWING_WATER and FLOWING_LAVA

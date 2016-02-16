@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -36,7 +37,7 @@ public class Region {
         return b / Chunk.BLOCKS;
     }
     private static int blockToAbsoluteChunk(int b) {
-        return b / Chunk.BLOCKS;
+        return (b >= 0) ? (b / Chunk.BLOCKS) : ((b + 1) / Chunk.BLOCKS - 1);
     }
 
     private final Path file;
@@ -91,10 +92,14 @@ public class Region {
 
     void save(Path saveFile) throws IOException {
     	boolean hasInputFile = file.toFile().exists();
-    	if(hasInputFile && saveFile.equals(file)) {
-    		throw new UnsupportedOperationException("for the moment, only saving a region as a copy is permitted");
+    	boolean saveToTempFile = false;
+    	boolean saveOperation = saveFile.equals(file);
+    	if(hasInputFile && saveOperation) {
+    		//save to a temporary file that will replace the region file,
+    		// because we might need to read from the old file
+    		saveToTempFile = true;
+    		saveFile = file.resolveSibling("tmp." + UUID.randomUUID() + "." + file.getFileName());
     	}
-    	boolean saveOperation = !hasInputFile && saveFile.equals(file);
     	
         try (	final RandomAccessFile inputFile = hasInputFile ? new RandomAccessFile(file.toString(), "r") : null;
         		final ByteArrayOutputStream chunkCompressedDataBytes = new ByteArrayOutputStream();
@@ -160,6 +165,7 @@ public class Region {
 	                	}
                 	} else {
                 		chunkSectorSize = 0;
+            			saveChunkOffsets[x][z] = 0;
                 	}
                 	saveChunkOffsets[x][z] |= chunkSectorSize;
 
@@ -179,7 +185,7 @@ public class Region {
                 }
             }
             //and finally write chunk compressed data
-            if ( (outputStream.size()!=Integer.MAX_VALUE) && ((outputStream.size()>>12)!=(saveChunkOffsets[0][0]>>8)) ) {
+            if ( (outputStream.size()!=Integer.MAX_VALUE) && ((outputStream.size()>>12)!=2) ) {
             	throw new WorldException("chunk offset mismatch in region file " + saveFile.toString());
         	}
             outputStream.write(chunkCompressedDataBytes.toByteArray());
@@ -187,6 +193,21 @@ public class Region {
             if(saveOperation) {
             	dirty = false;
             }
+        }
+        
+        if (saveToTempFile) {
+        	//replace file by temp file
+        	try {
+        		Files.delete(file);
+        	} catch (Exception e) {
+        		//unexpected
+        		assert false;
+        	}
+        	
+        	if ( ! saveFile.toFile().renameTo(file.toFile()) ) {
+        		throw new WorldException("failed to rename temp region file " + saveFile.toString() + " to region file " + file.toString());
+        	}
+        	
         }
     }
 
