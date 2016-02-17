@@ -181,6 +181,11 @@ public class Section implements NBTCompoundProcessor {
         return blocks[x][y][z];
     }
 
+    Block getBlockInChunk(int xInChunk, int y, int zInChunk) {
+        y = blockInSection(y);
+        return blocks[xInChunk][y][zInChunk];
+    }
+   
     void setBlock(int x, int y, int z, Block block) {
         x = blockInSection(x);
         y = blockInSection(y);

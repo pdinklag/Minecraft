@@ -220,9 +220,11 @@ public class Chunk implements NBTCompoundProcessor {
     	}
     	
     	//simplistic method : set skylight to full between top and surface block
+    	// then only go down straight through transparent blocks
     	for (int xInChunk = 0; xInChunk < BLOCKS; xInChunk++) {
     		for (int zInChunk = 0; zInChunk < BLOCKS; zInChunk++) {
     			int curHeight = heightmap[xz1D(xInChunk,zInChunk)];
+    			byte curLight = MAX_LIGHT;
     			for (int y = 255 ; y >= 0; y--) {
     				byte sectionY = yToSection(y);
     				Section section = sections.get(sectionY);
@@ -234,9 +236,125 @@ public class Chunk implements NBTCompoundProcessor {
     						section.setSkyLight(xInChunk, y, zInChunk, MAX_LIGHT);
     					}
     					else {
-    						//TODO: check if there is a transparent block
-    						//no need to go to lower blocks
-    						break;
+    						//compute the light dimming or stopping depending on the block type
+    						if (section.getBlockInChunk(xInChunk, y, zInChunk) != null) {
+	    						switch (section.getBlockInChunk(xInChunk, y, zInChunk).getType()) {
+	       						case AIR:
+	    						case GLASS:
+	       						case CARPET:
+	       							//totally transparent block : keep same amount of light
+	       							break;
+	    						case REDSTONE_BLOCK:
+	    						case LIT_FURNACE:
+	    						case GLOWSTONE:
+	    						case ICE:
+	    						case LIT_PUMPKIN:
+	    						case LEAVES:
+	    						case LEAVES2:
+	    						case PISTON:
+	    						case REDSTONE_LAMP:
+	    						//case REDSTONE_ORE: //only when active TODO
+	       						case STICKY_PISTON:
+	       						case TNT:
+	       						case ANVIL:
+	       						case BED:
+	       						case BREWING_STAND:
+	       						case CAKE:
+	       						case CAULDRON:
+	       						case CHEST:
+	       						case COBBLESTONE_WALL:
+	       						case DAYLIGHT_DETECTOR:
+	       						case DAYLIGHT_DETECTOR_INVERTED:
+	       						case WOODEN_DOOR:
+	       						case SPRUCE_DOOR:
+	       						case BIRCH_DOOR:
+	       						case JUNGLE_DOOR:
+	       						case ACACIA_DOOR:
+	       						case DARK_OAK_DOOR:
+	       						case IRON_DOOR:
+	       						case ENCHANTING_TABLE:
+	       						case ENDER_CHEST:
+	       						case FENCE:
+	       						case SPRUCE_FENCE:
+	       						case BIRCH_FENCE:
+	       						case JUNGLE_FENCE:
+	       						case DARK_OAK_FENCE:
+	       						case ACACIA_FENCE:
+	       						case FENCE_GATE:
+	       						case SPRUCE_FENCE_GATE:
+	       						case BIRCH_FENCE_GATE:
+	       						case JUNGLE_FENCE_GATE:
+	       						case DARK_OAK_FENCE_GATE:
+	       						case ACACIA_FENCE_GATE:
+	       						case GLASS_PANE:
+	       						case HOPPER:
+	       						case IRON_BARS:
+	       						case LADDER:
+	       						case WATERLILY:
+	       						case NETHER_BRICK_FENCE:
+	       						case POWERED_REPEATER:
+	       						case POWERED_COMPARATOR:
+	       						case SNOW_LAYER:
+	       						case TRAPDOOR:
+	       						case TRAPPED_CHEST:
+	       						case VINE:
+	       						case STONE_BUTTON:
+	       						case WOODEN_BUTTON:
+	       						case LEVER:
+	       						case STONE_PRESSURE_PLATE:
+	       						case WOODEN_PRESSURE_PLATE:
+	       						case LIGHT_WEIGHTED_PRESSURE_PLATE:
+	       						case HEAVY_WEIGHTED_PRESSURE_PLATE:
+	       						case RAIL:
+	       						case GOLDEN_RAIL:
+	       						case DETECTOR_RAIL:
+	       						case ACTIVATOR_RAIL:
+	       						case REDSTONE_WIRE:
+	       						case REDSTONE_TORCH:
+	       						case END_PORTAL:
+	       						case FIRE:
+	       						case PORTAL:
+	       						case WALL_SIGN:
+	       						case STANDING_SIGN:
+	       						case TORCH:
+	       						case CACTUS:
+	       						case WHEAT:
+	       						case MELON_BLOCK:
+	       						case PUMPKIN:
+	       						case PUMPKIN_STEM:
+	       						case REEDS:
+	       						case POTATOES:
+	       						case CARROTS:
+	       						case COCOA:
+	       						case NETHER_WART:
+	       						case YELLOW_FLOWER:
+	       						case RED_FLOWER:
+	       						case DOUBLE_PLANT:
+	       						case TALLGRASS:
+	       						case BROWN_MUSHROOM:
+	       						case RED_MUSHROOM:
+	       						case SAPLING:
+	       						case LAVA:
+	       						case FLOWING_LAVA:
+	       						case WATER:
+	       						case FLOWING_WATER:
+	       						case END_PORTAL_FRAME:
+	       						case MOB_SPAWNER:
+	       						case SLIME_BLOCK:
+	       							//other transparent block : light diminished by 1
+	       							curLight--;
+	       							break;
+	       						default:
+	       							//opaque block
+	       							curLight = 0;
+	    						}
+    						}
+    						if (curLight > 0) {
+    							section.setSkyLight(xInChunk, y, zInChunk, curLight);
+    						} else {
+	    						//no need to go to lower blocks
+	    						break;
+    						}
     					}
     				}
     			}
