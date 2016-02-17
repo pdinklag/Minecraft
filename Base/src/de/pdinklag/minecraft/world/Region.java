@@ -135,7 +135,7 @@ public class Region {
                     }
 
                 	if (compressedChunksCache[x][z] == null) {
-                		if(inputFile != null && chunkFileOffsets != null) {
+                		if(inputFile != null && chunkFileOffsets != null && chunkFileOffsets[x][z] != 0) {
 	                		//copy chunk data from original file
 	                		inputFile.seek(chunkFileOffsets[x][z]);
 	                		chunkSize = inputFile.readInt();
@@ -230,27 +230,31 @@ public class Region {
                     final int size = raf.readInt();
                     final int compression = raf.readByte();
 
-                    compressedChunksCache[x][z] = new byte[size];
-                    raf.read(compressedChunksCache[x][z]);
-
-                    final CompoundTag chunkNbt;
-                    try (final ByteArrayInputStream bis = new ByteArrayInputStream(compressedChunksCache[x][z])) {
-                        switch (compression) {
-                            case NBT.COMPRESSION_GZIP:
-                                chunkNbt = NBT.loadDirect(new GZIPInputStream(bis));
-                                break;
-
-                            case NBT.COMPRESSION_7ZIP:
-                                chunkNbt = NBT.loadDirect(new InflaterInputStream(bis));
-                                break;
-
-                            default:
-                                throw new UnsupportedOperationException(
-                                        "Unsupported compression type " + compression);
-                        }
+                    if (size > 0) {
+	                    compressedChunksCache[x][z] = new byte[size];
+	                    raf.read(compressedChunksCache[x][z]);
+	
+	                    final CompoundTag chunkNbt;
+	                    try (final ByteArrayInputStream bis = new ByteArrayInputStream(compressedChunksCache[x][z])) {
+	                        switch (compression) {
+	                            case NBT.COMPRESSION_GZIP:
+	                                chunkNbt = NBT.loadDirect(new GZIPInputStream(bis));
+	                                break;
+	
+	                            case NBT.COMPRESSION_7ZIP:
+	                                chunkNbt = NBT.loadDirect(new InflaterInputStream(bis));
+	                                break;
+	
+	                            default:
+	                                throw new UnsupportedOperationException(
+	                                        "Unsupported compression type " + compression);
+	                        }
+	                    }
+	
+	                    chunk = NBTMarshal.unmarshal(Chunk.class, chunkNbt.getCompound("Level"));
+                    } else {
+                        chunk = new Chunk(blockToAbsoluteChunk(absoluteX),blockToAbsoluteChunk(absoluteZ));
                     }
-
-                    chunk = NBTMarshal.unmarshal(Chunk.class, chunkNbt.getCompound("Level"));
                 } catch (IOException ex) {
                     throw new WorldException("Failed to load chunk", ex);
                 }
