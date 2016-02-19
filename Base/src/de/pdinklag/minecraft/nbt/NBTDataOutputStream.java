@@ -26,8 +26,9 @@ class NBTDataOutputStream extends DataOutputStream implements NBTDataOutput {
 
     @Override
     public void writeNBTString(String str) throws IOException {
-        writeShort(str.length());
-        write(str.getBytes(NBT.ENCODING));
+    	byte[] bytes = str.getBytes(NBT.ENCODING);
+        writeShort(bytes.length);
+        write(bytes);
     }
 
     @Override
