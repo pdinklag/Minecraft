@@ -256,7 +256,10 @@ public class Region {
                         chunk = new Chunk(blockToAbsoluteChunk(absoluteX),blockToAbsoluteChunk(absoluteZ));
                     }
                 } catch (IOException ex) {
-                    throw new WorldException("Failed to load chunk", ex);
+                    throw new WorldException("Failed to load chunk " + x +"," + z
+                    			+ " (block " + absoluteX + "," + absoluteZ + ")"
+                    			+ " (offset " + chunkFileOffsets[x][z] + " in region file " + file.toString()
+                    		, ex);
                 }
             } else {
                 chunk = new Chunk(blockToAbsoluteChunk(absoluteX),blockToAbsoluteChunk(absoluteZ));
