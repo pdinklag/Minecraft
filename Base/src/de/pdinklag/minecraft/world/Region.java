@@ -25,7 +25,7 @@ import java.util.zip.InflaterInputStream;
  * Represents a region, consisting of 32x32 chunks.
  */
 public class Region {
-    static final int CHUNKS = 32;
+    public static final int CHUNKS = 32;
     public static final int BLOCKS = CHUNKS * Chunk.BLOCKS;
 
     private static int blockToRegionChunk(int b) {

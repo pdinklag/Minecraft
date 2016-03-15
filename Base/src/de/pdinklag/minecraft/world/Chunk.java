@@ -12,7 +12,8 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +46,7 @@ public class Chunk implements NBTCompoundProcessor {
     private final int[] heightmap = new int[BLOCKS_SQ];
     private boolean lightPopulated;
     private boolean terrainPopulated;
-    private final TreeMap<Byte, Section> sections = new TreeMap<>();
+    private final Map<Byte, Section> sections = new HashMap<>();
     private final ArrayList<Entity> entities = new ArrayList<>();
 
     private transient boolean dirty = false;

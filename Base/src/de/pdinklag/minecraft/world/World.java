@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +43,7 @@ public class World {
 
     private final Path baseDir;
     private boolean readOnly;
-    private final Map<Long, Region> regions = new TreeMap<>();
+    private final Map<Long, Region> regions = new HashMap<>();
     private de.pdinklag.minecraft.world.Level level;
 
     /**
