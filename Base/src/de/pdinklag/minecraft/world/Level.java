@@ -5,7 +5,7 @@ import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 /**
- * Represents a chunk section, consisting of 16x16x16 blocks.
+ * Represents a level.dat file.
  */
 @NBTCompoundType
 public class Level implements NBTCompoundProcessor {

@@ -249,7 +249,14 @@ public final class BlockData {
 	}
 	/**
 	 * 
-	 * ... TODO
+	 * ...
+	 * TODO fill the rest of block data
 	 *
 	 */
+	public final class PRISMARINE {
+		public final static byte PRISMARINE = 0x00;
+		public final static byte PRISMARINE_BRICKS = 0x01;
+		public final static byte DARK_PRISMARINE = 0x02;
+	}
+
 }
