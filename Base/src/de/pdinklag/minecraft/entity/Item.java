@@ -1,16 +1,13 @@
 package de.pdinklag.minecraft.entity;
 
 import de.pdinklag.minecraft.nbt.ByteTag;
-import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
 import de.pdinklag.minecraft.nbt.ShortTag;
 import de.pdinklag.minecraft.nbt.StringTag;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Class for items.
@@ -48,8 +45,6 @@ public class Item extends Entity {
         age = -32768;
         health = 5;
         pickupDelay = 0;
-        owner = "";
-        thrower = "";
         item_count = 1;
         item_damage = 0;
         item_id = "";

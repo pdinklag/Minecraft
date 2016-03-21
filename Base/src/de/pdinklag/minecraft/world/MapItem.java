@@ -1,5 +1,7 @@
 package de.pdinklag.minecraft.world;
 
+import java.util.TreeMap;
+
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
@@ -29,7 +31,10 @@ public class MapItem implements NBTCompoundProcessor {
 	public final static byte MAP_DIMENSION_OVERWORLD = 0;
 	public final static byte MAP_DIMENSION_NETHER = -1;
 	public final static byte MAP_DIMENSION_END = 1;
+	
+	private static short currentMapId = 0;//indicate the id of the next generated map
 
+	private short mapId;//not stored in the file but part of the filename
     private byte scale;
     private byte dimension;
     private short width = MAP_ITEM_SIZE;
@@ -41,13 +46,9 @@ public class MapItem implements NBTCompoundProcessor {
     public transient boolean dirty = true;
 
     /**
-     * Constructs a new map item with default values.
+     * Constructs a blank map item aimed at being loaded
      */
     public MapItem() {
-    	scale = MAP_SCALE_3;
-    	dimension = MAP_DIMENSION_OVERWORLD;
-    	xCenter = 448;
-    	zCenter = 448;
     }
 
     /**
@@ -58,19 +59,32 @@ public class MapItem implements NBTCompoundProcessor {
 			throw new WorldException("trying to create a map Item with a wrong scale");
 		}
     	this.scale = scale;
-		if (dimension < MAP_DIMENSION_NETHER || scale > MAP_DIMENSION_END) {
+		if (dimension != MAP_DIMENSION_OVERWORLD && dimension != MAP_DIMENSION_NETHER && scale != MAP_DIMENSION_END) {
 			throw new WorldException("trying to create a map Item with a wrong dimension");
 		}
 		this.dimension = dimension;
 		int mapRealSize = MAP_ITEM_SIZE * getPixelRatio(scale);
 		if ( (xCenter / mapRealSize - 64 + mapRealSize / 2) != xCenter ) {
-			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (x axis)");
+//			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (x axis)");
 		}
     	this.xCenter = xCenter;
 		if ( (zCenter / mapRealSize - 64 + mapRealSize / 2) != zCenter ) {
-			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (z axis)");
+//			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (z axis)");
 		}
 		this.zCenter = zCenter;
+		
+		if (currentMapId >= 0x7fff) {
+			throw new WorldException("cannot create new map item : too many maps");
+		}
+		this.mapId = currentMapId;
+		currentMapId ++;
+    }
+    
+    /**
+     * generate the filename of the map
+     */
+    public String getFilename() {
+    	return "map_" + mapId + ".dat";
     }
 
     @Override
@@ -123,7 +137,43 @@ public class MapItem implements NBTCompoundProcessor {
         this.dirty = false;
     }
 	
-	public void setColor(byte x, byte z, byte color) {
+	public short getId() {
+		return mapId;
+	}
+	
+	/**
+	 * set one color on a specific pixel of the map from a group of pixel colors
+	 *  the goal here is to determine the color in scales > 0
+	 * 
+	 * @param x must be between 0 and MAP_ITEM_SIZE
+	 * @param z must be between 0 and MAP_ITEM_SIZE
+	 * @param colors an array of color indexes (full color id, not base color id)
+	 */
+	public void setColor(int x, int z, byte[] colors) {
+        if (x < 0 || x >= MAP_ITEM_SIZE || z < 0 || z >= MAP_ITEM_SIZE) {
+        	throw new WorldException("map Item coordinate out of bounds");
+        }
+        
+        final TreeMap<Byte, Integer> colorCount = new TreeMap<Byte, Integer>();
+        for (byte color : colors) {
+        	if (colorCount.containsKey(color)) {
+        		colorCount.put(color, colorCount.get(color) + 1);
+        	} else {
+        		colorCount.put(color, 1);
+        	}
+        }
+        
+        setColor(x, z, colorCount.lastKey());
+	}
+
+	/**
+	 * set one color on a specific pixel of the map
+	 * 
+	 * @param x must be between 0 and MAP_ITEM_SIZE
+	 * @param z must be between 0 and MAP_ITEM_SIZE
+	 * @param color the index of the color (full color id, not base color id)
+	 */
+	public void setColor(int x, int z, byte color) {
         if (x < 0 || x >= MAP_ITEM_SIZE || z < 0 || z >= MAP_ITEM_SIZE) {
         	throw new WorldException("map Item coordinate out of bounds");
         }

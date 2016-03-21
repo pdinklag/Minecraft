@@ -57,6 +57,18 @@ public class World {
         this.baseDir = Objects.requireNonNull(baseDir);
         this.readOnly = readOnly;
         
+        File testDirFile = baseDir.toFile();
+        if (!testDirFile.exists()) {
+    		throw new WorldException("cannot create a world in a non existant baseDir");
+        }
+        //create necessary subdirectories if needed
+        for (String subDirName : new String[] { "region", "data" }) {
+	        testDirFile = baseDir.resolve(subDirName).toFile();
+	        if (!testDirFile.exists()) {
+	        	testDirFile.mkdir();
+	        }
+        }
+        
         if ( !loadLevelFile(baseDir.resolve("level.dat")) ) {
         	//create default level
         	level = new de.pdinklag.minecraft.world.Level();
@@ -238,6 +250,22 @@ public class World {
     	final Region region = getRegionAt(x, z);
         return (region != null) ? getRegionAt(x, z).listEntitiesInChunk(x, z) : new ArrayList<Entity>();
 	}
+	
+    public void addMapItem(MapItem mapItem) throws IOException {
+    	String filePath = baseDir.resolve("data").resolve(mapItem.getFilename()).toString();
+    	LOGGER.log(Level.INFO,"saving map item " + filePath);
+        try (	final DataOutputStream outputStream = new DataOutputStream (new FileOutputStream(filePath)) ) {
+	        CompoundTag mapDataNbt = (CompoundTag) NBTMarshal.marshal(mapItem);
+	        
+			NBT.save(outputStream, mapDataNbt, "java.util.zip.GZIPOutputStream");
+        } catch (ClassNotFoundException e) {
+			assert false;
+			return;
+		}
+        mapItem.saved();
+    }
+
+    //TODO: load map items
 
 
     /**
