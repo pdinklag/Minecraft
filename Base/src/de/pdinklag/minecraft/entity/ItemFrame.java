@@ -33,10 +33,7 @@ public class ItemFrame extends Entity {
     private byte facing;
 
     @NBTProperty(upperCase = true, optional = true)
-    private HashMap<String,NBT> item;//actually never used to store data, just to indicate the NBT compound
-    private String item_id;
-    private byte item_count;
-    private short item_damage;
+    private HashMap<String,NBT> item;
     
     @NBTProperty(upperCase = true)
     private float itemDropChance;
@@ -63,10 +60,10 @@ public class ItemFrame extends Entity {
     	this.tileZ = z;
     	this.facing = facing;
     	this.itemRotation = itemRotation;
-    	this.item = new HashMap<String,NBT>();//so it will be saved
-    	this.item_id = itemId;
-    	this.item_damage = damage;
-    	this.item_count = 1;
+    	item = new HashMap<String,NBT>();
+    	item.put("id", new StringTag(itemId));
+    	item.put("Count", new ByteTag((byte) 1));
+    	item.put("Damage", new ShortTag(damage));
     }
     
     public ItemFrame(int x, int y, int z, byte facing) {
@@ -89,10 +86,7 @@ public class ItemFrame extends Entity {
     	this.tileZ = src.tileZ;
     	this.facing = src.facing;
     	this.itemRotation = src.itemRotation;
-    	this.item = src.item;
-        item_count = src.item_count;
-        item_damage = src.item_damage;
-        item_id = src.item_id;
+    	this.item = new HashMap<String,NBT>(src.item);
     }
 
     public int getTileX() {
@@ -144,23 +138,11 @@ public class ItemFrame extends Entity {
     }
 
     public HashMap<String,NBT> getItem() {
-    	if (item == null) {
-    		return null;
-    	}
-    	HashMap<String,NBT> map = new HashMap<String,NBT>();
-    	map.put("id", new StringTag(item_id));
-    	map.put("Count", new ByteTag(item_count));
-    	map.put("Damage", new ShortTag(item_damage));
-        return map;
+        return item;
     }
 
     public void setItem(HashMap<String,NBT> item) {
-    	if (item == null) {
-    		this.item = new HashMap<String,NBT>();
-    	}
-        item_id = (String) item.get("id").getValue();
-        item_count = (byte) item.get("Count").getValue();
-        item_damage = (short) item.get("Damage").getValue();
+    	this.item = item;
     }
 
 

@@ -31,10 +31,7 @@ public class Item extends Entity {
     private String thrower;
 
     @NBTProperty(upperCase = true)
-    private HashMap<String,NBT> item;//actually never used to store data, just to indicate the NBT compound
-    private String item_id;
-    private byte item_count;
-    private short item_damage;
+    private HashMap<String,NBT> item;
     
     /**
      * Constructs a new blank item (to use when loading from file)
@@ -45,9 +42,6 @@ public class Item extends Entity {
         age = -32768;
         health = 5;
         pickupDelay = 0;
-        item_count = 1;
-        item_damage = 0;
-        item_id = "";
     }
 
     /**
@@ -55,9 +49,10 @@ public class Item extends Entity {
      */
     public Item(String itemId, short damage, byte count) {
     	this();
-    	this.item_id = itemId;
-    	this.item_damage = damage;
-    	this.item_count = count;
+    	item = new HashMap<String,NBT>();
+    	item.put("id", new StringTag(itemId));
+    	item.put("Count", new ByteTag(count));
+    	item.put("Damage", new ShortTag(damage));
     }
     public Item(String itemId, byte count) {
     	this(itemId, (short) 0, count);
@@ -77,9 +72,7 @@ public class Item extends Entity {
         pickupDelay = src.pickupDelay;
         owner = src.owner;
         thrower = src.thrower;
-        item_count = src.item_count;
-        item_damage = src.item_damage;
-        item_id = src.item_id;
+    	item = new HashMap<String,NBT>(src.item);
     }
 
     public short getAge() {
@@ -123,17 +116,11 @@ public class Item extends Entity {
     }
 
     public HashMap<String,NBT> getItem() {
-    	HashMap<String,NBT> map = new HashMap<String,NBT>();
-    	map.put("id", new StringTag(item_id));
-    	map.put("Count", new ByteTag(item_count));
-    	map.put("Damage", new ShortTag(item_damage));
-        return map;
+        return item;
     }
 
     public void setItem(HashMap<String,NBT> item) {
-        item_id = (String) item.get("id").getValue();
-        item_count = (byte) item.get("Count").getValue();
-        item_damage = (short) item.get("Damage").getValue();
+    	this.item = item;
     }
 
 
