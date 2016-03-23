@@ -176,11 +176,7 @@ public enum MapItemColor {
 			new BlockSpec(BlockType.LAPIS_BLOCK) }),
 	BASECOLOR_33(new int[] {0,214,57}, new BlockSpec[] {
 			new BlockSpec(BlockType.EMERALD_BLOCK) }),
-	BASECOLOR_34(new int[] {127,85,48}, new BlockSpec[] { }),
-	BASECOLOR_35(new int[] {111,2,0}, new BlockSpec[] {
-			new BlockSpec(BlockType.NETHERRACK), new BlockSpec(BlockType.QUARTZ_ORE), new BlockSpec(BlockType.NETHER_WART),
-			new BlockSpec(BlockType.NETHER_BRICK), new BlockSpec(BlockType.NETHER_BRICK_FENCE), new BlockSpec(BlockType.NETHER_BRICK_STAIRS) }),
-	BASECOLOR_36(new int[] {126,84,48}, new BlockSpec[] {
+	BASECOLOR_34(new int[] {127,85,48}, new BlockSpec[] {
 			new BlockSpec(BlockType.DIRT, BlockData.DIRT.PODZOL),
 			new BlockSpec(BlockType.LOG, BlockData.LOG.OAK),
 			new BlockSpec(BlockType.PLANKS, BlockData.WOODPLANKS.OAK), new BlockSpec(BlockType.FENCE),
@@ -189,7 +185,9 @@ public enum MapItemColor {
 			new BlockSpec(BlockType.WOODEN_SLAB, (byte) (BlockData.WOODENSLABS.OAK & BlockData.SLABS.UPSIDE_DOWN)),
 			new BlockSpec(BlockType.DOUBLE_WOODEN_SLAB, BlockData.WOODENSLABS.OAK)
 			}),
-
+	BASECOLOR_35(new int[] {111,2,0}, new BlockSpec[] {
+			new BlockSpec(BlockType.NETHERRACK), new BlockSpec(BlockType.QUARTZ_ORE), new BlockSpec(BlockType.NETHER_WART),
+			new BlockSpec(BlockType.NETHER_BRICK), new BlockSpec(BlockType.NETHER_BRICK_FENCE), new BlockSpec(BlockType.NETHER_BRICK_STAIRS) }),
 	;
 	
 	private static class BlockSpec {
@@ -237,6 +235,12 @@ public enum MapItemColor {
 		return rgb;
 	}
 	
+	public byte getColorByte() {
+		//TODO : take in account the variant of the color
+		// for the moment, only work with base colors
+		return (byte) (this.ordinal() * 4 + 2);
+	}
+	
 	static public byte getColor(Block block, int y) {
 		MapItemColor baseColor = null;
 		for (MapItemColor colorSpec : MapItemColor.values()) {
@@ -255,7 +259,7 @@ public enum MapItemColor {
 			baseColor = BASECOLOR_3_DEFAULT;
 		}
 		
-		return (byte) (baseColor.ordinal() * 4);
+		return baseColor.getColorByte();
 	}
 
 }

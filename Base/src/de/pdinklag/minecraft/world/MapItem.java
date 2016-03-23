@@ -31,6 +31,7 @@ public class MapItem implements NBTCompoundProcessor {
 	public final static byte MAP_DIMENSION_OVERWORLD = 0;
 	public final static byte MAP_DIMENSION_NETHER = -1;
 	public final static byte MAP_DIMENSION_END = 1;
+	public final static byte MAP_DIMENSION_NONE = 127;
 	
 	private static short currentMapId = 0;//indicate the id of the next generated map
 
@@ -65,11 +66,13 @@ public class MapItem implements NBTCompoundProcessor {
 		this.dimension = dimension;
 		int mapRealSize = MAP_ITEM_SIZE * getPixelRatio(scale);
 		if ( (xCenter / mapRealSize - 64 + mapRealSize / 2) != xCenter ) {
-//			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (x axis)");
+			//check disabled as minecraft handles fine map that are not fitting its tiling
+			//throw new WorldException("trying to create a map Item with a center not fitting the map alignment (x axis)");
 		}
     	this.xCenter = xCenter;
 		if ( (zCenter / mapRealSize - 64 + mapRealSize / 2) != zCenter ) {
-//			throw new WorldException("trying to create a map Item with a center not fitting the map alignment (z axis)");
+			//check disabled as minecraft handles fine map that are not fitting its tiling
+			//throw new WorldException("trying to create a map Item with a center not fitting the map alignment (z axis)");
 		}
 		this.zCenter = zCenter;
 		
@@ -79,7 +82,23 @@ public class MapItem implements NBTCompoundProcessor {
 		this.mapId = currentMapId;
 		currentMapId ++;
     }
-    
+
+    /**
+     * Constructs a new map item that will not act as a map.
+     */
+    public MapItem(boolean foobar) {
+    	this.scale = 0;
+		this.dimension = MAP_DIMENSION_NONE;
+    	this.xCenter = 0;
+		this.zCenter = 0;
+		
+		if (currentMapId >= 0x7fff) {
+			throw new WorldException("cannot create new map item : too many maps");
+		}
+		this.mapId = currentMapId;
+		currentMapId ++;
+    }
+
     /**
      * generate the filename of the map
      */
