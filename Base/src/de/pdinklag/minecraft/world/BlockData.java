@@ -259,4 +259,21 @@ public final class BlockData {
 		public final static byte DARK_PRISMARINE = 0x02;
 	}
 
+	public final class FLOWERPOTS {
+		public final static byte EMPTY = 0x00;
+		public final static byte POPPY = 0x01;
+		public final static byte DANDELION = 0x02;
+		public final static byte OAK_SAPLING = 0x03;
+		public final static byte SPRUCE_SAPLING = 0x04;
+		public final static byte BIRCH_SAPLING = 0x05;
+		public final static byte JUNGLE_SAPLING = 0x06;
+		public final static byte RED_MUSHROOM = 0x07;
+		public final static byte BROWN_MUSHROOM = 0x08;
+		public final static byte CACTUS = 0x0A;
+		public final static byte DEAD_BUSH = 0x0B;
+		public final static byte FERN = 0x0C;
+		public final static byte ACACIA_SAPLING = 0x0D;
+		public final static byte DARK_OAK_SAPLING = 0x0E;
+	}
+	
 }
