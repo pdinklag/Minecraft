@@ -253,6 +253,13 @@ public final class BlockData {
 	 * TODO fill the rest of block data
 	 *
 	 */
+	public final class STONE_BRICKS {
+		public final static byte STONE_BRICK = 0x00;
+		public final static byte MOSSY_STONE_BRICK = 0x01;
+		public final static byte CRACKED_STONE_BRICK = 0x02;
+		public final static byte CHISELED_STONE_BRICK = 0x03;
+	}
+
 	public final class PRISMARINE {
 		public final static byte PRISMARINE = 0x00;
 		public final static byte PRISMARINE_BRICKS = 0x01;
