@@ -1,5 +1,7 @@
 package de.pdinklag.minecraft.world;
 
+import java.util.Date;
+
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
@@ -86,7 +88,8 @@ public class Level implements NBTCompoundProcessor {
         generatorOptions = "";
         randomSeed = 0;
         mapFeatures = false;
-        lastPlayed = 0;
+    	Date date= new Date();
+        lastPlayed = date.getTime();
         sizeOnDisk = 0;
         allowCommands = true;
         hardcore = false;
