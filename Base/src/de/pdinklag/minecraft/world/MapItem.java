@@ -89,8 +89,8 @@ public class MapItem implements NBTCompoundProcessor {
     public MapItem(boolean foobar) {
     	this.scale = 0;
 		this.dimension = MAP_DIMENSION_NONE;
-    	this.xCenter = 0;
-		this.zCenter = 0;
+    	this.xCenter = 128;//to avoid having a marker on the map when displayed in a frame
+		this.zCenter = 128;
 		
 		if (currentMapId >= 0x7fff) {
 			throw new WorldException("cannot create new map item : too many maps");
