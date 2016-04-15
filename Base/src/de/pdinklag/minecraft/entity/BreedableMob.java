@@ -8,7 +8,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
  */
 @NBTCompoundType
 public abstract class BreedableMob extends Mob {
-    @NBTProperty(upperCase = true)
+    @NBTProperty(upperCase = true, optional = true)
     private int inLove;
 
     @NBTProperty(upperCase = true)
