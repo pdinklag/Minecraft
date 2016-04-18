@@ -12,15 +12,15 @@ import java.util.ArrayList;
 @NBTCompoundType
 public class Mob extends Entity {
 	//healF and health are not optional but if we deal with map files
-	// that are anterior to minecraft version 1.9, either one can be present
-	// and after 1.9 health is a float so this won't work at all
-	// this need to be improved but for the moment setting them optional will make it work for pre 1.9 versions
+	// that are anterior to minecraft version 1.9, value might be stored as healF
+	// Pre-1.9 value stored as "health" is an int and is not supported
+	//value will be stored as float in health in all cases
 	
     @NBTProperty(optional = true, upperCase = true)
     private float healF;
 
     @NBTProperty(optional = true, upperCase = true)
-    private int health;
+    private float health;
 
     @NBTProperty(upperCase = true)
     private float absorptionAmount;
@@ -73,7 +73,7 @@ public class Mob extends Entity {
      */
     public Mob(String mobId) {
     	super(mobId);
-    	healF = 10;
+    	health = 10;
     	absorptionAmount = 0;
     	hurtTime = 0;
         hurtByTimestamp = 0;
@@ -91,7 +91,7 @@ public class Mob extends Entity {
     public Mob(Mob src) {
     	super(src);
 
-    	healF = src.healF;
+    	health = src.health;
     	absorptionAmount = src.absorptionAmount;
     	hurtTime = src.hurtTime;
         hurtByTimestamp = src.hurtByTimestamp;
@@ -105,18 +105,18 @@ public class Mob extends Entity {
     
 
     public float getHealF() {
-        return healF;
-    }
-
-    public void setHealF(float healF) {
-        this.healF = healF;
-    }
-
-    public int getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
+    public void setHealF(float healF) {
+        this.health = healF;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public void setHealth(float health) {
         this.health = health;
     }
 
