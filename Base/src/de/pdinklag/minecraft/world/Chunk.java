@@ -1,5 +1,6 @@
 package de.pdinklag.minecraft.world;
 
+import de.pdinklag.minecraft.entity.BlockEntity;
 import de.pdinklag.minecraft.entity.Entity;
 import de.pdinklag.minecraft.math.Vec3d;
 import de.pdinklag.minecraft.nbt.CompoundTag;
@@ -48,6 +49,7 @@ public class Chunk implements NBTCompoundProcessor {
     private boolean terrainPopulated;
     private final Map<Byte, Section> sections = new HashMap<>();
     private final ArrayList<Entity> entities = new ArrayList<>();
+    private final ArrayList<BlockEntity> tileEntities = new ArrayList<>();
 
     private transient boolean dirty = false;
 
@@ -109,7 +111,8 @@ public class Chunk implements NBTCompoundProcessor {
 	            	entity = (Entity) NBTMarshal.unmarshal(Class.forName("de.pdinklag.minecraft.entity."+entity.getId()), entityNbt);
             	} catch (ClassNotFoundException e) {
 	            	//not implemented yet
-                	LOGGER.log(Level.INFO,"failed to load entity of type " + entity.getId() + " at " + entity.getPos().toString() + " because it is not implemented yet");
+                	LOGGER.log(Level.INFO,"failed to load entity of type " + entity.getId()
+                		+ " at " + entity.getPos().toString() + " because it is not implemented yet");
 
 	            	//TODO: projectiles, xpOrbs, vehicles, dynamicTiles, Other
 	            	entity = null;
@@ -119,7 +122,21 @@ public class Chunk implements NBTCompoundProcessor {
 	            }
 	        }
 	        
-	        //TODO: read block entities
+	        for (NBT<?> blockEntityNbt : nbt.getList("TileEntities")) {
+	        	BlockEntity blockEntity = NBTMarshal.unmarshal(BlockEntity.class, blockEntityNbt);
+            	try {
+            		blockEntity = (BlockEntity) NBTMarshal.unmarshal(Class.forName("de.pdinklag.minecraft.entity."+blockEntity.getId()), blockEntityNbt);
+            	} catch (ClassNotFoundException e) {
+	            	//not implemented yet
+                	LOGGER.log(Level.INFO,"failed to load block entity of type " + blockEntity.getId()
+                		+ " at " + blockEntity.getX() + "," + blockEntity.getY() + "," + blockEntity.getZ()
+                		+ " because it is not implemented yet");
+                	blockEntity = null;
+            	}
+	            if (blockEntity != null) {
+	            	tileEntities.add(blockEntity);
+	            }
+	        }
 
 	        dirty = false;
     	}
@@ -166,6 +183,16 @@ public class Chunk implements NBTCompoundProcessor {
 	        }
         }
         root.put("Entities", nbtList);
+
+        nbtList = new ListTag();
+        if (tileEntities.size() == 0) {
+        	nbtList.setType(Type.BYTE);//because list is empty
+        } else {
+	        for(BlockEntity blockEntity: tileEntities) {
+	        	nbtList.add(NBTMarshal.marshal(blockEntity));
+	        }
+        }
+        root.put("TileEntities", nbtList);
         
         //TODO: save block entities
         nbtList = new ListTag();
@@ -210,6 +237,15 @@ public class Chunk implements NBTCompoundProcessor {
     public void addEntity(double x, double y, double z, Entity entity) {
     	entity.setPos(new Vec3d(x,y,z));
     	entities.add(entity);
+    	
+        dirty = true;
+    }
+    
+    public void addBlockEntity(int x, int y, int z, BlockEntity blockEntity) {
+    	blockEntity.setX(x);
+    	blockEntity.setY(y);
+    	blockEntity.setZ(z);
+    	tileEntities.add(blockEntity);
     	
         dirty = true;
     }
@@ -368,6 +404,11 @@ public class Chunk implements NBTCompoundProcessor {
     @SuppressWarnings("unchecked")
 	public ArrayList<Entity> getEntities() {
     	return (ArrayList<Entity>) entities.clone();
+    }
+
+    @SuppressWarnings("unchecked")
+	public ArrayList<BlockEntity> getBlockEntities() {
+    	return (ArrayList<BlockEntity>) tileEntities.clone();
     }
 
     public boolean isDirty() {

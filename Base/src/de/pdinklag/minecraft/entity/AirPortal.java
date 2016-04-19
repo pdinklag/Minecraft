@@ -3,23 +3,24 @@ package de.pdinklag.minecraft.entity;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 /**
- * Class for spider entities.
+ * Base class for air portals block entities.
  */
 @NBTCompoundType
-public class Spider extends Mob {
+public class AirPortal extends BlockEntity {
+
     /**
      * Constructs a new blank item (to use when loading from file)
      */
-    public Spider() {
-    	super("Spider");
+    public AirPortal() {
+    	super("AirPortal");
     }
 
     /**
      * copy constructor
      */
-    public Spider(Spider src) {
+    public AirPortal(AirPortal src) {
     	super(src);
-    	id = "Spider";
+    	id = "AirPortal";
     }
-
+    
 }

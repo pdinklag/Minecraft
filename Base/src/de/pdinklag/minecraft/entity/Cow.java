@@ -3,7 +3,7 @@ package de.pdinklag.minecraft.entity;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 /**
- * class for cows.
+ * class for cow entities.
  */
 @NBTCompoundType
 public class Cow extends BreedableMob {

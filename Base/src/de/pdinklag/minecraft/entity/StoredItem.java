@@ -5,7 +5,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Class for items.
+ * Class for items as used by or contained in an entity or block entity.
  */
 @NBTCompoundType
 public class StoredItem {

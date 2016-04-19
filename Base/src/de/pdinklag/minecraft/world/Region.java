@@ -1,5 +1,6 @@
 package de.pdinklag.minecraft.world;
 
+import de.pdinklag.minecraft.entity.BlockEntity;
 import de.pdinklag.minecraft.entity.Entity;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
@@ -295,6 +296,16 @@ public class Region {
 
 	public ArrayList<Entity> listEntitiesInChunk(int x, int z) {
         return getChunkAt(x, z).getEntities();
+    }
+
+    void addBlockEntity(int x, int y, int z, BlockEntity blockEntity) {
+        final Chunk chunk = getChunkAt((int) x, (int) z);
+        chunk.addBlockEntity(x, y, z, blockEntity);
+        dirty = (dirty || chunk.isDirty());
+    }
+
+	public ArrayList<BlockEntity> listBlockEntitiesInChunk(int x, int z) {
+        return getChunkAt(x, z).getBlockEntities();
     }
 
     

@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Base class for pigs.
+ * Base class for bat entities.
  */
 @NBTCompoundType
 public class Bat extends Mob {

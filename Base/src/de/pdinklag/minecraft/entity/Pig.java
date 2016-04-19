@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Base class for pigs.
+ * Base class for pig entities.
  */
 @NBTCompoundType
 public class Pig extends BreedableMob {

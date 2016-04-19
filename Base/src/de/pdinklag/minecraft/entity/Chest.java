@@ -6,10 +6,17 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Base class for minecart with chest entities.
+ * Base class for chest block entities.
  */
 @NBTCompoundType
-public class MinecartChest extends Minecart {
+public class Chest extends BlockEntity {
+
+    @NBTProperty(upperCase = true, optional = true)
+    private String customName;
+
+    @NBTProperty(upperCase = true, optional = true)
+    private String lock;
+
     @NBTProperty(upperCase = true, optional = true, listItemType=StoredItem.class)
     private ArrayList<StoredItem> items;
 
@@ -20,22 +27,41 @@ public class MinecartChest extends Minecart {
     private long lootTableSeed;
 
     /**
-     * Constructs a new blank entity (to use when loading from file)
+     * Constructs a new blank item (to use when loading from file)
      */
-    public MinecartChest() {
-    	super("MinecartChest");
+    public Chest() {
+    	super("Chest");
     }
 
     /**
      * copy constructor
      */
-    public MinecartChest(MinecartChest src) {
+    public Chest(Chest src) {
     	super(src);
+    	id = "Chest";
+    	customName = src.customName;
+    	lock = src.lock;
     	items = src.items;
     	lootTable = src.lootTable;
     	lootTableSeed = src.lootTableSeed;
     }
     
+    public String getCustomName() {
+        return customName;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
+    }
+
+    public String getLock() {
+        return lock;
+    }
+
+    public void setLock(String lock) {
+        this.lock = lock;
+    }
+
     public ArrayList<StoredItem> getItems() {
         return items;
     }
@@ -59,5 +85,4 @@ public class MinecartChest extends Minecart {
     public void setLootTableSeed(long lootTableSeed) {
         this.lootTableSeed = lootTableSeed;
     }
-
 }

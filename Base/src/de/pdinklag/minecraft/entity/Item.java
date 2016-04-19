@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Class for items.
+ * Class for item entities (the ones you can pick from the ground).
  */
 @NBTCompoundType
 public class Item extends Entity {

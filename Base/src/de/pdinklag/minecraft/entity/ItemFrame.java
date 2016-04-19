@@ -10,7 +10,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 import java.util.HashMap;
 
 /**
- * Class for items.
+ * Class for item frame entities.
  */
 @NBTCompoundType
 public class ItemFrame extends Entity {

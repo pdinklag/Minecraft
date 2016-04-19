@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Base class for pigs.
+ * Base class for wolf entities.
  */
 @NBTCompoundType
 public class Wolf extends BreedableMob {

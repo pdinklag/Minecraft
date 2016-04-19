@@ -6,7 +6,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Base class for pigs.
+ * Base class for minecart with hopper entities.
  */
 @NBTCompoundType
 public class MinecartHopper extends Minecart {

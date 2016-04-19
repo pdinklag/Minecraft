@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Class for villagers.
+ * Class for zobie entities.
  */
 @NBTCompoundType
 public class Zombie extends Mob {

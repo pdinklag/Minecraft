@@ -4,7 +4,7 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 /**
- * Class for sheeps.
+ * Class for sheep entities.
  */
 @NBTCompoundType
 public class Sheep extends BreedableMob {

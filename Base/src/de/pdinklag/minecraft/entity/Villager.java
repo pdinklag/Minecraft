@@ -3,7 +3,7 @@ package de.pdinklag.minecraft.entity;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 
 /**
- * Class for villagers.
+ * Class for villager entities.
  */
 @NBTCompoundType
 public class Villager extends BreedableMob {

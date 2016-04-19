@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.pdinklag.minecraft.entity.BlockEntity;
 import de.pdinklag.minecraft.entity.Entity;
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBT;
@@ -249,6 +250,19 @@ public class World {
 	public ArrayList<Entity> listEntitiesInChunk(int x, int z) {
     	final Region region = getRegionAt(x, z);
         return (region != null) ? getRegionAt(x, z).listEntitiesInChunk(x, z) : new ArrayList<Entity>();
+	}
+	
+    public void addBlockEntity(int x, int y, int z, BlockEntity blockEntity) {
+    	if (readOnly) {
+    		throw new WorldException("you are in readonly mode and cannot set blocks");
+    	}
+    	
+        getRegionAt(x, z).addBlockEntity(x, y, z, blockEntity);
+    }
+    
+	public ArrayList<BlockEntity> listBlockEntitiesInChunk(int x, int z) {
+    	final Region region = getRegionAt(x, z);
+        return (region != null) ? getRegionAt(x, z).listBlockEntitiesInChunk(x, z) : new ArrayList<BlockEntity>();
 	}
 	
     public void addMapItem(MapItem mapItem) throws IOException {
