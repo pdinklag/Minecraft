@@ -109,10 +109,9 @@ public class Chunk implements NBTCompoundProcessor {
 	            	entity = (Entity) NBTMarshal.unmarshal(Class.forName("de.pdinklag.minecraft.entity."+entity.getId()), entityNbt);
             	} catch (ClassNotFoundException e) {
 	            	//not implemented yet
-            		//commented because makes way too much verbose
-                	//LOGGER.log(Level.INFO,"failed to load entity of type " + entity.getId() + " because it is not implemented yet");
+                	LOGGER.log(Level.INFO,"failed to load entity of type " + entity.getId() + " at " + entity.getPos().toString() + " because it is not implemented yet");
 
-	            	//TODO: some mobs, projectiles, xpOrbs, vehicles, dynamicTiles, Other
+	            	//TODO: projectiles, xpOrbs, vehicles, dynamicTiles, Other
 	            	entity = null;
             	}
 	            if (entity != null) {

@@ -64,13 +64,11 @@ public class Player extends Mob {
     @NBTProperty(upperCase = true)
     private int xpSeed;
 
-    //TODO: Map to Item class
-    @NBTProperty(upperCase = true, listItemType = CompoundTag.class)
-    private ArrayList<CompoundTag> inventory;
+    @NBTProperty(upperCase = true, listItemType=StoredItem.class)
+    private ArrayList<StoredItem> inventory;
 
-    //TODO: Map to Item class
-    @NBTProperty(upperCase = true, listItemType = CompoundTag.class)
-    private ArrayList<CompoundTag> enderItems;
+    @NBTProperty(upperCase = true, listItemType=StoredItem.class)
+    private ArrayList<StoredItem> enderItems;
 
     //TODO: Map to PlayerAbility class
     @NBTProperty
@@ -209,19 +207,19 @@ public class Player extends Mob {
         this.xpSeed = xpSeed;
     }
 
-    public ArrayList<CompoundTag> getInventory() {
+    public ArrayList<StoredItem> getInventory() {
         return inventory;
     }
 
-    public void setInventory(ArrayList<CompoundTag> inventory) {
+    public void setInventory(ArrayList<StoredItem> inventory) {
         this.inventory = inventory;
     }
 
-    public ArrayList<CompoundTag> getEnderItems() {
+    public ArrayList<StoredItem> getEnderItems() {
         return enderItems;
     }
 
-    public void setEnderItems(ArrayList<CompoundTag> enderItems) {
+    public void setEnderItems(ArrayList<StoredItem> enderItems) {
         this.enderItems = enderItems;
     }
 

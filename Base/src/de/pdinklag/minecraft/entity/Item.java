@@ -1,13 +1,7 @@
 package de.pdinklag.minecraft.entity;
 
-import de.pdinklag.minecraft.nbt.ByteTag;
-import de.pdinklag.minecraft.nbt.NBT;
-import de.pdinklag.minecraft.nbt.ShortTag;
-import de.pdinklag.minecraft.nbt.StringTag;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
-
-import java.util.HashMap;
 
 /**
  * Class for items.
@@ -31,7 +25,7 @@ public class Item extends Entity {
     private String thrower;
 
     @NBTProperty(upperCase = true)
-    private HashMap<String,NBT> item;
+    private StoredItem item;
     
     /**
      * Constructs a new blank item (to use when loading from file)
@@ -49,10 +43,7 @@ public class Item extends Entity {
      */
     public Item(String itemId, short damage, byte count) {
     	this();
-    	item = new HashMap<String,NBT>();
-    	item.put("id", new StringTag(itemId));
-    	item.put("Count", new ByteTag(count));
-    	item.put("Damage", new ShortTag(damage));
+    	item = new StoredItem(itemId, damage, count);
     }
     public Item(String itemId, byte count) {
     	this(itemId, (short) 0, count);
@@ -72,7 +63,7 @@ public class Item extends Entity {
         pickupDelay = src.pickupDelay;
         owner = src.owner;
         thrower = src.thrower;
-    	item = new HashMap<String,NBT>(src.item);
+    	item = new StoredItem(src.item);
     }
 
     public short getAge() {
@@ -115,11 +106,11 @@ public class Item extends Entity {
         this.thrower = thrower;
     }
 
-    public HashMap<String,NBT> getItem() {
+    public StoredItem getItem() {
         return item;
     }
 
-    public void setItem(HashMap<String,NBT> item) {
+    public void setItem(StoredItem item) {
     	this.item = item;
     }
 

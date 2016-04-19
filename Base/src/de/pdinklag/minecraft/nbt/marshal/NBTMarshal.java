@@ -67,8 +67,6 @@ public class NBTMarshal {
         } else if (canUnmarshal(type, valueTags[0])) {
             value = unmarshal(type, valueTags[0]);
         } else if (listItemType != null && List.class.isAssignableFrom(type) && valueTags[0] instanceof ListTag) {
-        	//dev2000 : I don't really understand what is the use of listItemType
-        	// as the fact that type derives from List should be sufficient
             if (listItemType == Object.class) {
                 throw new NBTMarshalException("No list item type provided.");
             }
@@ -169,7 +167,7 @@ public class NBTMarshal {
                                 prop.annotation.listItemType());
                     } else if (!prop.annotation.optional()) {
                         throw new NBTMarshalException("Non-optional property \"" + prop.descriptor.getName() + "\"" +
-                                " does not exist in compound.");
+                                " does not exist in compound of " + target.toString());
                     }
                 }
             } catch (IntrospectionException ex) {
