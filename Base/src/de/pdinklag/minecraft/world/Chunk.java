@@ -194,11 +194,6 @@ public class Chunk implements NBTCompoundProcessor {
         }
         root.put("TileEntities", nbtList);
         
-        //TODO: save block entities
-        nbtList = new ListTag();
-        nbtList.setType(Type.BYTE);//because list is empty
-        root.put("TileEntities", nbtList);
-
         return root;
     }
 
