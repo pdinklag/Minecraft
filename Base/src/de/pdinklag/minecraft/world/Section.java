@@ -1,5 +1,8 @@
 package de.pdinklag.minecraft.world;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import de.pdinklag.minecraft.nbt.CompoundTag;
 import de.pdinklag.minecraft.nbt.NBTException;
 import de.pdinklag.minecraft.nbt.marshal.NBTCompoundProcessor;
@@ -10,6 +13,8 @@ import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
  */
 @NBTCompoundType
 public class Section implements NBTCompoundProcessor {
+    private static final Logger LOGGER = Logger.getLogger("Section");
+    
     private static final int AIR = 0;
 
     public static final int BLOCKS = Chunk.BLOCKS;
@@ -112,12 +117,17 @@ public class Section implements NBTCompoundProcessor {
                     }
 
                     if (id != AIR) {
-                        final Block block = new Block();
-                        block.setType(BlockType.values()[id]);
-                        block.setData(nib4(data, i));
-                        this.blocks[x][y][z] = block;
-
-                        numNonAir++;
+                    	if (id >= BlockType.values().length) {
+                    		LOGGER.log(Level.WARNING, "found a block with an unknown id : " + id
+                    				+ " at position " + x + "," + y + "," + z);
+                    	} else {
+	                        final Block block = new Block();
+	                        block.setType(BlockType.values()[id]);
+	                        block.setData(nib4(data, i));
+	                        this.blocks[x][y][z] = block;
+	
+	                        numNonAir++;
+                    	}
                     }
                 }
             }
