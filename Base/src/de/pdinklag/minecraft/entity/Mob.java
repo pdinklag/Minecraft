@@ -1,21 +1,26 @@
 package de.pdinklag.minecraft.entity;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 
 import java.util.ArrayList;
 
 /**
  * Base class for mob entities.
- * <p/>
- * Mapped according to http://minecraft.gamepedia.com/Chunk_format#Entity_Format.
  */
+@NBTCompoundType
 public class Mob extends Entity {
-    @NBTProperty(upperCase = true)
+	//healF and health are not optional but if we deal with map files
+	// that are anterior to minecraft version 1.9, value might be stored as healF
+	// Pre-1.9 value stored as "health" is an int and is not supported
+	//value will be stored as float in health in all cases
+	
+    @NBTProperty(optional = true, upperCase = true)
     private float healF;
 
-    @NBTProperty(upperCase = true)
-    private int health;
+    @NBTProperty(optional = true, upperCase = true)
+    private float health;
 
     @NBTProperty(upperCase = true)
     private float absorptionAmount;
@@ -62,20 +67,56 @@ public class Mob extends Entity {
     //TODO: Map Leash class
     @NBTProperty(upperCase = true, optional = true)
     private CompoundTag leash;
+    
+    /**
+     * Constructs a new blank mob (to use when loading from file)
+     */
+    public Mob(String mobId) {
+    	super(mobId);
+    	health = 10;
+    	absorptionAmount = 0;
+    	hurtTime = 0;
+        hurtByTimestamp = 0;
+        deathTime = 0;
+        attributes = new ArrayList<CompoundTag>();
+        canPickUpLoot = false;
+        persistenceRequired = true;
+        leashed = false;
+        attributes = new ArrayList<CompoundTag>();
+    }
+
+    /**
+     * copy constructor
+     */
+    public Mob(Mob src) {
+    	super(src);
+
+    	health = src.health;
+    	absorptionAmount = src.absorptionAmount;
+    	hurtTime = src.hurtTime;
+        hurtByTimestamp = src.hurtByTimestamp;
+        deathTime = src.deathTime;
+        attributes = src.attributes;
+        canPickUpLoot = src.canPickUpLoot;
+        persistenceRequired = src.persistenceRequired;
+        leashed = src.leashed;
+    }
+
+    
 
     public float getHealF() {
-        return healF;
-    }
-
-    public void setHealF(float healF) {
-        this.healF = healF;
-    }
-
-    public int getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
+    public void setHealF(float healF) {
+        this.health = healF;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public void setHealth(float health) {
         this.health = health;
     }
 

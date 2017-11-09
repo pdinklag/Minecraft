@@ -1,5 +1,8 @@
 package de.pdinklag.minecraft.nbt.marshal;
 
+import java.util.Map;
+import java.util.Set;
+
 import de.pdinklag.minecraft.nbt.*;
 
 /**
@@ -17,7 +20,7 @@ public class NBTDefaultTranslator implements NBTTranslator<Object> {
 
     @Override
     public NBT[] translateToNBT(Object x) {
-        final NBT nbt;
+        NBT nbt = null;
         if (x instanceof Byte) {
             nbt = new ByteTag((byte) x);
         } else if (x instanceof Boolean) {
@@ -28,16 +31,30 @@ public class NBTDefaultTranslator implements NBTTranslator<Object> {
             nbt = new IntTag((int) x);
         } else if (x instanceof Long) {
             nbt = new LongTag((long) x);
+        } else if (x instanceof Double) {
+            nbt = new DoubleTag((double) x);
+        } else if (x instanceof Float) {
+            nbt = new FloatTag((float) x);
         } else if (x instanceof String) {
             nbt = new StringTag((String) x);
         } else if (x instanceof byte[]) {
             nbt = new ByteArrayTag((byte[]) x);
         } else if (x instanceof int[]) {
             nbt = new IntArrayTag((int[]) x);
-        } else {
-            return new NBT[0];
+        } else if (x instanceof Map) {
+        	Map map = (Map)x;
+        	if ( (!map.isEmpty())
+        			&& (map.keySet().toArray()[0] instanceof String)
+        			&& (map.values().toArray()[0] instanceof NBT) ) {
+        		//a Map<String,NBT> will be considered as a compound object
+        		nbt = new CompoundTag();
+        		Set<Map.Entry<String,NBT>> set = (Set<Map.Entry<String,NBT>>) map.entrySet();
+        		for (Map.Entry<String,NBT> entry : set) {
+        			((CompoundTag) nbt).put(entry.getKey(), entry.getValue());
+        		}
+        	}
         }
 
-        return new NBT[]{nbt};
+        return (nbt == null) ? new NBT[0] : new NBT[]{nbt};
     }
 }

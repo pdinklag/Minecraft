@@ -16,7 +16,7 @@ import java.util.UUID;
 @NBTCompoundType
 public class Entity {
     @NBTProperty(optional = true)
-    private String id;
+	protected String id;
 
     @NBTProperty(upperCase = true)
     private Vec3d pos;
@@ -66,6 +66,48 @@ public class Entity {
 
     @NBTProperty(upperCase = true, optional = true)
     private CommandStats commandStats;
+    
+    /**
+     * Constructs a new blank entity (to use when loading from file)
+     */
+    public Entity() {
+        id = "";
+        pos = new Vec3d();
+        motion = new Vec3d();
+        rotation = new Rot2f();
+        fallDistance = 0;
+        fire = -1;
+        air = 300;
+        onGround = true;
+        invulnerable = false;
+        portalCooldown = 0;
+        uuid = UUID.randomUUID();
+    }
+
+    /**
+     * Constructs a new entity with specified values
+     */
+    public Entity(String id) {
+    	this();
+    	this.id = id;
+    }
+
+    /**
+     * copy constructor
+     */
+    public Entity(Entity src) {
+        id = src.id;
+        pos = src.pos;
+        motion = src.motion;
+        rotation = src.rotation;
+        fallDistance = src.fallDistance;
+        fire = src.fire;
+        air = src.air;
+        onGround = src.onGround;
+        invulnerable = src.invulnerable;
+        portalCooldown = src.portalCooldown;
+        uuid = src.uuid;
+    }
 
     public String getId() {
         return id;

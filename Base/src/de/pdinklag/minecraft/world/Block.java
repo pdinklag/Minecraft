@@ -4,7 +4,7 @@ package de.pdinklag.minecraft.world;
  * Represents a single block.
  */
 public class Block {
-    static final Block AIR_BLOCK = new Block();
+	public static final Block AIR_BLOCK = new Block();
 
     private BlockType type = BlockType.AIR;
     private byte data = 0;
@@ -13,6 +13,22 @@ public class Block {
     private byte skyLight = 0;
 
     public Block() {
+    }
+
+    public Block(BlockType type) {
+        this.type = type;
+    }
+    public Block(BlockType type, byte data) {
+        this.type = type;
+    	assert (byte) (data & 0x0f) == data;
+        this.data = data;
+    }
+
+    public Block(Block copyFrom) {
+    	type = copyFrom.type;
+    	data = copyFrom.data;
+    	blockLight = copyFrom.blockLight;
+    	skyLight = copyFrom.skyLight;
     }
 
     public BlockType getType() {
@@ -28,6 +44,7 @@ public class Block {
     }
 
     public void setData(byte data) {
+    	assert (byte) (data & 0x0f) == data;
         this.data = data;
     }
 

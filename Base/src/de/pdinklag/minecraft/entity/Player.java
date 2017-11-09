@@ -1,6 +1,7 @@
 package de.pdinklag.minecraft.entity;
 
 import de.pdinklag.minecraft.nbt.CompoundTag;
+import de.pdinklag.minecraft.nbt.marshal.annotations.NBTCompoundType;
 import de.pdinklag.minecraft.nbt.marshal.annotations.NBTProperty;
 import de.pdinklag.minecraft.world.BlockPos;
 
@@ -11,8 +12,9 @@ import java.util.ArrayList;
  * <p/>
  * Mapped according to http://minecraft.gamepedia.com/Player.dat_format#NBT_structure.
  */
+@NBTCompoundType
 public class Player extends Mob {
-    //TODO: Make enumeration
+	//TODO: Make enumeration
     @NBTProperty
     private int playerGameType;
 
@@ -62,17 +64,20 @@ public class Player extends Mob {
     @NBTProperty(upperCase = true)
     private int xpSeed;
 
-    //TODO: Map to Item class
-    @NBTProperty(upperCase = true, listItemType = CompoundTag.class)
-    private ArrayList<CompoundTag> inventory;
+    @NBTProperty(upperCase = true, listItemType=StoredItem.class)
+    private ArrayList<StoredItem> inventory;
 
-    //TODO: Map to Item class
-    @NBTProperty(upperCase = true, listItemType = CompoundTag.class)
-    private ArrayList<CompoundTag> enderItems;
+    @NBTProperty(upperCase = true, listItemType=StoredItem.class)
+    private ArrayList<StoredItem> enderItems;
 
     //TODO: Map to PlayerAbility class
     @NBTProperty
     private CompoundTag abilities;
+
+    //TODO: set default values
+    public Player(String mobId) {
+		super(mobId);
+	}
 
     public int getPlayerGameType() {
         return playerGameType;
@@ -202,19 +207,19 @@ public class Player extends Mob {
         this.xpSeed = xpSeed;
     }
 
-    public ArrayList<CompoundTag> getInventory() {
+    public ArrayList<StoredItem> getInventory() {
         return inventory;
     }
 
-    public void setInventory(ArrayList<CompoundTag> inventory) {
+    public void setInventory(ArrayList<StoredItem> inventory) {
         this.inventory = inventory;
     }
 
-    public ArrayList<CompoundTag> getEnderItems() {
+    public ArrayList<StoredItem> getEnderItems() {
         return enderItems;
     }
 
-    public void setEnderItems(ArrayList<CompoundTag> enderItems) {
+    public void setEnderItems(ArrayList<StoredItem> enderItems) {
         this.enderItems = enderItems;
     }
 

@@ -3,12 +3,16 @@ package de.pdinklag.minecraft.nbt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.InflaterOutputStream;
 
 /**
  * Represents a Minecraft Named Binary Tag (NBT).
@@ -17,6 +21,9 @@ import java.util.zip.GZIPOutputStream;
  */
 public abstract class NBT<T> {
     static final Charset ENCODING = Charset.forName("UTF-8");
+    
+    public static final byte COMPRESSION_GZIP = 1;
+    public static final byte COMPRESSION_7ZIP = 2;
 
     /**
      * Enumeration of known tag types.
@@ -99,6 +106,7 @@ public abstract class NBT<T> {
 
     /**
      * Loads a tag tree from the specified input stream directly, without piping it through GZIP.
+     * this enable the compression format to be set prior to the call
      *
      * @param in the stream to read from.
      * @return the read compound of tags.
@@ -119,7 +127,7 @@ public abstract class NBT<T> {
     }
 
     /**
-     * Loads a tag tree from the specified input stream.
+     * Loads an NBT file from the specified input stream.
      *
      * @param in the stream to read from.
      * @return the read compound of tags.
@@ -149,12 +157,53 @@ public abstract class NBT<T> {
      * @param compound the compound of tags to write.
      * @throws IOException
      */
-    public static void save(OutputStream out, CompoundTag compound) throws IOException {
-        try (final NBTDataOutputStream nbtOut = new NBTDataOutputStream(new GZIPOutputStream(out))) {
+    public static void save(OutputStream out, CompoundTag compound) throws IOException, NBTException {
+    	try {
+			save(out, compound, "java.util.zip.DeflaterOutputStream");
+		} catch (ClassNotFoundException e) {
+			// Unexpected
+			assert false;
+		}
+    }
+    
+    public static byte getDefaultSaveCompression() {
+    	return NBT.COMPRESSION_7ZIP;
+    }
+
+    /**
+     * Writes a tag tree to the specified output stream.
+     *
+     * @param out      the stream to write to.
+     * @param compound the compound of tags to write.
+     * @param compressionStreamClassName the name of the class to be used as compressing output stream class
+     * @throws IOException
+     * @throws ClassNotFoundException 
+     */
+    public static void save(OutputStream out, CompoundTag compound, String compressionStreamClassName) throws IOException, ClassNotFoundException {
+    	Class<?> compressionStreamBaseClass = Class.forName("java.util.zip.DeflaterOutputStream");
+    	Class<?> compressionStreamClass = Class.forName(compressionStreamClassName);
+    	if(!compressionStreamBaseClass.isAssignableFrom(compressionStreamClass)) {
+    		throw new NBTException("cannot save NBT with compression stream class as " + compressionStreamClassName);
+    	}
+		Constructor<?> compressionStreamConstructor = null;
+		try {
+			compressionStreamConstructor = compressionStreamClass.getConstructor(OutputStream.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			// Unexpected
+			assert false;
+			return;
+		}
+
+        try (final NBTDataOutputStream nbtOut = new NBTDataOutputStream( (DeflaterOutputStream) compressionStreamConstructor.newInstance(out) )) {
             nbtOut.writeTagId(Type.COMPOUND);
             nbtOut.writeNBTString(""); //empty name
             compound.writeValue(nbtOut);
-        }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+        	// Unexpected
+			assert false;
+			return;
+		}
     }
 
     /**

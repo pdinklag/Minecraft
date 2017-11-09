@@ -110,6 +110,31 @@ public class NBTMarshal {
 
         LOGGER.log(Level.FINE, property.getName() + " -> " + value);
     }
+    
+    private static NBT[] marshalValue(
+            Object value,
+            NBTTranslator translator) {
+
+    	NBT[] nbt;
+        if (NBT.class.isAssignableFrom(value.getClass())) {
+        	nbt = new NBT[]{(NBT) value};
+        } else if (canMarshal(value)) {
+            nbt = new NBT[]{marshal(value)};
+        } else if (List.class.isAssignableFrom(value.getClass())) {
+            nbt = new NBT[]{new ListTag()};
+            for (Object singleValue : (List) value) {
+            	NBT[] nbtItem = marshalValue(singleValue, translator);
+            	if (nbtItem.length != 1) {
+            		throw new NBTMarshalException("individual values in a list cannot be translated in NBT as several elements");
+            	}
+            	((ListTag) nbt[0]).add( nbtItem[0] );
+            }
+        } else {
+        	nbt = translator.translateToNBT(value);
+        }
+
+        return nbt;
+    }
 
     private static void unmarshalCompound(Object target, CompoundTag nbt) {
         if (target instanceof NBTCompoundProcessor) {
@@ -142,12 +167,60 @@ public class NBTMarshal {
                                 prop.annotation.listItemType());
                     } else if (!prop.annotation.optional()) {
                         throw new NBTMarshalException("Non-optional property \"" + prop.descriptor.getName() + "\"" +
-                                " does not exist in compound.");
+                                " does not exist in compound of " + target.toString());
                     }
                 }
             } catch (IntrospectionException ex) {
                 throw new NBTMarshalException("Failed to introspect target object.", ex);
             }
+        }
+    }
+    
+    private static NBT marshalCompound(Object object) {
+        if (object instanceof NBTCompoundProcessor) {
+            return ((NBTCompoundProcessor) object).marshalCompound();
+        } else {
+        	CompoundTag compound = new CompoundTag();
+            try {
+                for (PropertyAnnotationInfo<NBTProperty>.AnnotatedProperty prop :
+                        NBTPropertyHelper.getNBTProperties(object.getClass())) {
+
+                    final String[] nbtNames;
+                    if (prop.annotation.value().length > 0) {
+                        nbtNames = prop.annotation.value();
+                    } else {
+                    	String name = prop.descriptor.getName();
+                        if (prop.annotation.upperCase()) {
+                            name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                        }
+
+                        nbtNames = new String[]{name};
+                    }
+
+                    final Object value;
+                    try {
+                    	value = prop.descriptor.getReadMethod().invoke(object);
+                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        throw new NBTMarshalException("Failed to read value for property " + prop.descriptor.getName(), ex);
+                    }
+
+                    if (value != null) {
+                    	final NBT[] nbtTags = marshalValue(value, translatorInstance(prop.annotation.translator()));
+                    	if (nbtTags.length != nbtNames.length) {
+                            throw new NBTMarshalException("Mismatch of number of NBT tags between annotation and translator for property " + prop.descriptor.getName() + " in " + object.getClass());
+                    	}
+                        for (int i = 0; i < nbtNames.length; i++) {
+                        	compound.put( nbtNames[i], nbtTags[i] );
+                    	}
+                    } else if (!prop.annotation.optional()) {
+                        throw new NBTMarshalException("Non-optional property \"" + prop.descriptor.getName() + "\"" +
+                                " is not set in object " + object.getClass().getName() + ".");
+                    }
+                }
+            } catch (IntrospectionException ex) {
+                throw new NBTMarshalException("Failed to introspect source object.", ex);
+            }
+            return compound;
         }
     }
 
@@ -170,10 +243,60 @@ public class NBTMarshal {
             }
         }
     }
+    
+    private static NBT<?> marshalList(Object object) {
+        if (object instanceof NBTCompoundProcessor) {
+            return ((NBTListProcessor) object).marshalList();
+        } else {
+        	ListTag list = new ListTag();
+            try {
+//            	final HashMap<Integer, PropertyAnnotationInfo<NBTListItem>.AnnotatedProperty> indexedProperties
+//            		= new HashMap<Integer, PropertyAnnotationInfo<NBTListItem>.AnnotatedProperty>();
+            	List<PropertyAnnotationInfo<NBTListItem>.AnnotatedProperty> listItems = NBTPropertyHelper.getNBTListItems(object.getClass());
+            	NBT[] nbtValues = new NBT[listItems.size()];
+                for (PropertyAnnotationInfo<NBTListItem>.AnnotatedProperty prop : listItems) {
+                	if ((prop.annotation.value() >= nbtValues.length) || (nbtValues[prop.annotation.value()] != null)) {
+                		throw new NBTMarshalException("Incorrect list indexes for in " + object.getClass() + " detected in property " + prop.descriptor.getName());
+                	}
+
+                	final Object value;
+                    try {
+                    	value = prop.descriptor.getReadMethod().invoke(object);
+                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        throw new NBTMarshalException("Failed to read value for property " + prop.descriptor.getName(), ex);
+                    }
+
+                    if (value != null) {
+                    	final NBT[] nbtTags = marshalValue(value, translatorInstance(prop.annotation.translator()));
+                    	if (nbtTags.length != 1) {
+                            throw new NBTMarshalException("Only one NBT tag per value is allowed for list property " + prop.descriptor.getName() + " in " + object.getClass());
+                    	}
+
+                    	nbtValues[prop.annotation.value()] = nbtTags[0];
+                    } else {
+                        throw new NBTMarshalException("List property \"" + prop.descriptor.getName() + "\"" +
+                                " is not set in object " + object.getClass().getName() + ".");
+                    }
+                }
+                
+                for (int i = 0; i < nbtValues.length; i++) {
+                	list.add( nbtValues[i] );
+                }
+            } catch (IntrospectionException ex) {
+                throw new NBTMarshalException("Failed to introspect source object.", ex);
+            }
+            return list;
+        }
+    }
 
     static boolean canUnmarshal(Class<?> targetClass, NBT nbt) {
         return (targetClass.isAnnotationPresent(NBTCompoundType.class) && nbt instanceof CompoundTag)
                 || (targetClass.isAnnotationPresent(NBTListType.class) && nbt instanceof ListTag);
+    }
+
+    static boolean canMarshal(Object object) {
+        return object.getClass().isAnnotationPresent(NBTCompoundType.class)
+                || object.getClass().isAnnotationPresent(NBTListType.class);
     }
 
     /**
@@ -202,6 +325,26 @@ public class NBTMarshal {
             return target;
         } else {
             throw new NBTMarshalException("Cannot unmarshal " + nbt.getType() + " into " + targetClass);
+        }
+    }
+    
+    /**
+     * Attempts to marshal the given Object into an NBT.
+     *
+     * @param object      the object containing data to be marshalled.
+     * @return an NBT object corresponding to the marshalled Object.
+     */
+    public static NBT<?> marshal(Object object) {
+        if (canMarshal(object)) {
+        	NBT<?> nbt = null;
+	        if (object.getClass().isAnnotationPresent(NBTCompoundType.class)) {
+	        	nbt = marshalCompound(object);
+	        } else if (object.getClass().isAnnotationPresent(NBTListType.class)) {
+	        	nbt = marshalList(object);
+	        }
+	        return nbt;
+        } else {
+        	throw new NBTMarshalException("Cannot marshal object of class " + object.getClass());
         }
     }
 }
